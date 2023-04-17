@@ -1,0 +1,3 @@
+/Users/damlakayikci/Desktop/CmpE/okul/CmpE230/p2/cmake-build-debug/CMakeFiles/p2.dir
+/Users/damlakayikci/Desktop/CmpE/okul/CmpE230/p2/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/damlakayikci/Desktop/CmpE/okul/CmpE230/p2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
