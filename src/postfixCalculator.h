@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "tokenizer.h"
 
 #define MAX_LENGTH 256
@@ -153,7 +154,7 @@ LLI rightRotate(LLI n, LLI d) {
 
 // The main function that returns value
 // of a given postfix expression
-LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_variables, int *error) {
+LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_variables, int *error, FILE *file, int* variableCount) {
     TokenStack stack;
     stack.top = -1;
     LLI val1 = 0;
@@ -181,16 +182,30 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                         return 0;
                     }
                 } else if (peek(&stack).type == TOKEN_TYPE_IDENTIFIER || peek(&stack).type == TOKEN_TYPE_NUMBER) {
+                    printf("Type%u\n", peek(&stack).type);
+                    // if it is a number
                     if (returnIndex(variables, num_variables, peek(&stack).name) == -1) {
                         val1 = popPostfix(&stack).value;
                     } else {
-                        val1 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)].value;
+                       //val1 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)].value;
+                        Token variable = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)];
+                        // print token
+                        printf( "amk");
+                        val1 = variable.value;
+                        printf( "\t%%%d = load i32, i32* %%%s\n", *variableCount, variable.name);
+                        fprintf(file, "\t%%%d = load i32, i32* %%%s\n", *variableCount, variable.name);
                     }
                     if (peek(&stack).type == TOKEN_TYPE_IDENTIFIER || peek(&stack).type == TOKEN_TYPE_NUMBER) {
                         if (returnIndex(variables, num_variables, peek(&stack).name) == -1) {
                             val2 = popPostfix(&stack).value;
+                            printf("%lld\n\n\n", val2);
                         } else {
-                            val2 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)].value;
+                           // val2 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)].value;
+                            printf("amkxs");
+                            Token variable = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)];
+                            val2 = variable.value;
+                            printf( "\t%%%d = load i32, i32* %%%s\n", *variableCount, variable.name);
+                            fprintf(file, "\t%%%d = load i32, i32* %%%s\n", *variableCount, variable.name);
                         }
                         // evaluate the expression
                         switch (postfix[i].name[0]) {
