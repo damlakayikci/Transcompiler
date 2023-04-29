@@ -151,16 +151,19 @@ LLI rightRotate(LLI n, LLI d) {
       first, do bitwise or of n>>d with n <<(INT_BITS - d) */
     return (n >> d) | (n << (INT_BITS - d));
 }
+
 void modifyName(Token *token) {
     printf("Pre %s\n", token->name);
     if (token->type == TOKEN_TYPE_IDENTIFIER) {
-        char *dest = "i32 %";
-        char *new_name = malloc(strlen(dest) + strlen(token->name) + 1); // allocate memory for new string
-        strcpy(new_name, dest); // copy "i32 " to new string
-        strcat(new_name, token->name); // concatenate token.name to new string
-        free(token->name); // free the old name
-        token->name = new_name; // update token name to new string
+        if (strstr(token->name, "i32 %") == NULL) {
+            char *dest = "i32 %";
+            char *new_name = malloc(strlen(dest) + strlen(token->name) + 1); // allocate memory for new string
+            strcpy(new_name, dest); // copy "i32 " to new string
+            strcat(new_name, token->name); // concatenate token.name to new string
+       //     free(token->name); // free the old name
+            token->name = new_name; // update token name to new string
 
+        }
     } else {
         char *new_name = (char *) malloc(20 * sizeof(char)); // allocate enough memory to hold the formatted string
         sprintf(new_name, "%lld", token->value); // write the formatted string to the allocated memory
@@ -242,24 +245,27 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                         switch (postfix[i].name[0]) {
                             case '+':
                                 sprintf(newToken.name, "%%%d", (*variableCount)++);
-                                fprintf(file, "\t%s = add i32 %s, %s\n", newToken.name, token1.name, token2.name);
+                                fprintf(file, "\t%s = add %s, %s\n", newToken.name, token1.name, token2.name);
                                 //printf("\t%s = add i32 %s, %s\n", newToken.name, name1, name2);
                                 newToken.value = val2 + val1;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '-':
                                 sprintf(newToken.name, "%%%d", (*variableCount)++);
+                                fprintf(file, "\t%s = sub %s, %s\n", newToken.name, token1.name, token2.name);
                                 newToken.value = val2 - val1;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '*':
                                 sprintf(newToken.name, "%%%d", (*variableCount)++);
+                                fprintf(file, "\t%s = mul %s, %s\n", newToken.name, token1.name, token2.name);
                                 newToken.value = val2 * val1;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '^':
                                 sprintf(newToken.name, "%%%d", (*variableCount)++);
                                 newToken.value = val2 ^ val1;
+                                fprintf(file, "\t%s = xor %s, %s\n", newToken.name, token1.name, token2.name);
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '$':
@@ -275,11 +281,13 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                             case '<':
                                 sprintf(newToken.name, "%%%d", (*variableCount)++);
                                 newToken.value = val2 << val1;
+                                fprintf(file, "\t%s = shl %s, %s\n", newToken.name, token1.name, token2.name);
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '>':
                                 sprintf(newToken.name, "%%%d", (*variableCount)++);
                                 newToken.value = val2 >> val1;
+                                fprintf(file, "\t%s = ashr %s, %s\n", newToken.name, token1.name, token2.name);
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '&':

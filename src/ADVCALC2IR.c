@@ -17,6 +17,7 @@ int main() {
     Token *variables = malloc(sizeof(Token) * MAX_VARIABLES);
     char input[256];
     int bok = 0;
+    int variableCount = 0;
 
     FILE *file;
     char filename[] = "file.ll";
@@ -29,14 +30,14 @@ int main() {
     char beginning[] = "; ModuleID = 'advcalc2ir'\ndeclare i32 @printf(i8*, ...)\n\n@print.str = constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n";
     fprintf(file, "%s", beginning);
 
-    while (bok < 3) {
+    while (bok < 7) {
         int num_tokens = 0; //  keep track of the number of tokens
         int index = 0;     //  keep track of the index of the tokens
         int output_count = 0;
         int error = 0; // boolean for errors
         int lineCount = 0;
         int equalFlag = 0;
-        int variableCount = 0;
+
 
         printf(">");
         fgets(input, 256, stdin); //  read the input
