@@ -132,11 +132,11 @@ Token popPostfix(TokenStack *stack) {
     return result;
 }
 
-void pushPostfix(TokenStack *stack, LLI item) {
+void pushPostfix(TokenStack *stack, Token element) {
     stack->top++;
-    stack->items[stack->top].name = "temp";
-    stack->items[stack->top].type = TOKEN_TYPE_NUMBER;
-    stack->items[stack->top].value = item;
+    stack->items[stack->top].name = element.name;
+    stack->items[stack->top].type = element.type;
+    stack->items[stack->top].value = element.value;
 }
 
 LLI leftRotate(LLI n, LLI d) {
@@ -152,13 +152,27 @@ LLI rightRotate(LLI n, LLI d) {
     return (n >> d) | (n << (INT_BITS - d));
 }
 
+void modifyName(Token token) {
+    char *new_name = malloc(sizeof(char) * 256);  // create a new char array to hold the new name
+    if (token.type == TOKEN_TYPE_IDENTIFIER) {
+        sprintf(new_name, "i32 %s", token.name);  // concatenate "i32 " and token.name into new_name
+        token.name = strdup(new_name);  // update token.name with the new string
+    } else {
+        sprintf(token.name, "%lld", token.value);
+    }
+}
+
 // The main function that returns value
 // of a given postfix expression
-LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_variables, int *error, FILE *file, int* variableCount) {
+LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_variables, int *error, FILE *file,
+                    int *variableCount) {
     TokenStack stack;
     stack.top = -1;
+    Token token1, token2;
     LLI val1 = 0;
     LLI val2 = 0;
+    Token newToken;
+    newToken.type = TOKEN_TYPE_IDENTIFIER;
 
     int i = 0;
     // Scan all characters one by one
@@ -166,78 +180,101 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
         if (postfix[i].name != NULL) {
             if (isOperator(postfix[i].name)) {
                 // check not operator first
-                if (strcmp(postfix[i].name, "!") == 0) {
-                    if (peek(&stack).type == TOKEN_TYPE_IDENTIFIER) {
-                        if (returnIndex(variables, num_variables, peek(&stack).name) == -1) {
-                            val1 = popPostfix(&stack).value;
-                        } else { // if variable is found in the variable list get the value from the variable list
-                            val1 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)].value;
-                        }
-                        pushPostfix(&stack, ~val1);
-                    } else if (peek(&stack).type == TOKEN_TYPE_NUMBER) {
-                        val1 = popPostfix(&stack).value;
-                        pushPostfix(&stack, ~val1);
-                    } else {
-                        *error = 1;
-                        return 0;
-                    }
-                } else if (peek(&stack).type == TOKEN_TYPE_IDENTIFIER || peek(&stack).type == TOKEN_TYPE_NUMBER) {
-                    printf("Type%u\n", peek(&stack).type);
+//                if (strcmp(postfix[i].name, "!") == 0) {
+//                    if (peek(&stack).type == TOKEN_TYPE_IDENTIFIER) {
+//                        if (returnIndex(variables, num_variables, peek(&stack).name) == -1) {
+//                            val1 = popPostfix(&stack).value;
+//                        } else { // if variable is found in the variable list get the value from the variable list
+//                            val1 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)].value;
+//                        }
+//                        pushPostfix(&stack, ~val1);
+//                    } else if (peek(&stack).type == TOKEN_TYPE_NUMBER) {
+//                        val1 = popPostfix(&stack).value;
+//                        pushPostfix(&stack, ~val1);
+//                    } else {
+//                        *error = 1;
+//                        return 0;
+//                    }
+//                } else
+                if (peek(&stack).type == TOKEN_TYPE_IDENTIFIER || peek(&stack).type == TOKEN_TYPE_NUMBER) {
                     // if it is a number
                     if (returnIndex(variables, num_variables, peek(&stack).name) == -1) {
-                        val1 = popPostfix(&stack).value;
+                        token1 = popPostfix(&stack);
+                        val1 = token1.value;
                     } else {
-                       //val1 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)].value;
-                        Token variable = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)];
-                        // print token
-                        printf( "amk");
-                        val1 = variable.value;
-                        printf( "\t%%%d = load i32, i32* %%%s\n", *variableCount, variable.name);
-                        fprintf(file, "\t%%%d = load i32, i32* %%%s\n", *variableCount, variable.name);
+                        //val1 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)].value;
+                        token1 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)];
+                        val1 = token1.value;
+//                        printf("\t%%%d = load i32, i32* %%%s\n", *variableCount, variable.name);
+                        fprintf(file, "\t%%%d = load i32, i32* %%%s\n", (*variableCount)++, token1.name);
                     }
                     if (peek(&stack).type == TOKEN_TYPE_IDENTIFIER || peek(&stack).type == TOKEN_TYPE_NUMBER) {
                         if (returnIndex(variables, num_variables, peek(&stack).name) == -1) {
-                            val2 = popPostfix(&stack).value;
-                            printf("%lld\n\n\n", val2);
+                            token2 = popPostfix(&stack);
+                            val2 = token2.value;
                         } else {
-                           // val2 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)].value;
-                            printf("amkxs");
-                            Token variable = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)];
-                            val2 = variable.value;
-                            printf( "\t%%%d = load i32, i32* %%%s\n", *variableCount, variable.name);
-                            fprintf(file, "\t%%%d = load i32, i32* %%%s\n", *variableCount, variable.name);
+                            // val2 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)].value;
+                            token2 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)];
+                            val2 = token2.value;
+//                            printf("\t%%%d = load i32, i32* %%%s\n", *variableCount, variable.name);
+                            fprintf(file, "\t%%%d = load i32, i32* %%%s\n", (*variableCount)++, token2.name);
                         }
+                        // print tokens
+
+
                         // evaluate the expression
                         switch (postfix[i].name[0]) {
                             case '+':
-                                pushPostfix(&stack, val2 + val1);
+                                sprintf(newToken.name, "%%%d", (*variableCount)++);
+                                fprintf(file, "\t%s = add i32 %s, %s\n", newToken.name, token1.name, token2.name);
+                                //printf("\t%s = add i32 %s, %s\n", newToken.name, name1, name2);
+                                newToken.value = val2 + val1;
+                                pushPostfix(&stack, newToken);
                                 break;
                             case '-':
-                                pushPostfix(&stack, val2 - val1);
+                                sprintf(newToken.name, "%%%d", (*variableCount)++);
+                                newToken.value = val2 - val1;
+                                pushPostfix(&stack, newToken);
                                 break;
                             case '*':
-                                pushPostfix(&stack, val2 * val1);
+                                sprintf(newToken.name, "%%%d", (*variableCount)++);
+                                newToken.value = val2 * val1;
+                                pushPostfix(&stack, newToken);
                                 break;
                             case '^':
-                                pushPostfix(&stack, val2 ^ val1);
+                                sprintf(newToken.name, "%%%d", (*variableCount)++);
+                                newToken.value = val2 ^ val1;
+                                pushPostfix(&stack, newToken);
                                 break;
                             case '$':
-                                pushPostfix(&stack, leftRotate(val2, val1));
+                                sprintf(newToken.name, "%%%d", (*variableCount)++);
+                                newToken.value = leftRotate(val2, val1);
+                                pushPostfix(&stack, newToken);
                                 break;
                             case '#':
-                                pushPostfix(&stack, rightRotate(val2, val1));
+                                sprintf(newToken.name, "%%%d", (*variableCount)++);
+                                newToken.value = rightRotate(val2, val1);
+                                pushPostfix(&stack, newToken);
                                 break;
                             case '<':
-                                pushPostfix(&stack, val2 << val1);
+                                sprintf(newToken.name, "%%%d", (*variableCount)++);
+                                newToken.value = val2 << val1;
+                                pushPostfix(&stack, newToken);
                                 break;
                             case '>':
-                                pushPostfix(&stack, val2 >> val1);
+                                sprintf(newToken.name, "%%%d", (*variableCount)++);
+                                newToken.value = val2 >> val1;
+                                pushPostfix(&stack, newToken);
                                 break;
                             case '&':
-                                pushPostfix(&stack, val2 & val1);
+                                sprintf(newToken.name, "%%%d", (*variableCount)++);
+                                newToken.value = val2 & val1;
+                                pushPostfix(&stack, newToken);
                                 break;
                             case '|':
-                                pushPostfix(&stack, val2 | val1);
+                                sprintf(newToken.name, "%%%d", (*variableCount)++);
+                                newToken.value = val2 | val1;
+                                pushPostfix(&stack, newToken);
                                 break;
                         }
                     } else { // else something went wrong
@@ -249,12 +286,12 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                     return 0;
                 }
             } else if (postfix[i].type == TOKEN_TYPE_NUMBER) {
-                pushPostfix(&stack, postfix[i].value);
+                pushPostfix(&stack, postfix[i]);
             } else if (postfix[i].type == TOKEN_TYPE_IDENTIFIER) {
                 if (returnIndex(variables, num_variables, postfix[i].name) == -1) {
-                    pushPostfix(&stack, postfix[i].value);
+                    pushPostfix(&stack, postfix[i]);
                 } else {
-                    pushPostfix(&stack, variables[returnIndex(variables, num_variables, postfix[i].name)].value);
+                    pushPostfix(&stack, variables[returnIndex(variables, num_variables, postfix[i].name)]);
                 }
             } else { // else something went wrong
                 *error = 1;
