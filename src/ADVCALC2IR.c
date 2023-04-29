@@ -29,7 +29,7 @@ int main() {
     char beginning[] = "; ModuleID = 'advcalc2ir'\ndeclare i32 @printf(i8*, ...)\n\n@print.str = constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n";
     fprintf(file, "%s", beginning);
 
-    while (bok < 1) {
+    while (bok < 3) {
         int num_tokens = 0; //  keep track of the number of tokens
         int index = 0;     //  keep track of the index of the tokens
         int output_count = 0;
@@ -58,9 +58,10 @@ int main() {
             // tokenize the input
             Token *tokens = tokenizer(input, &num_tokens, variables, &num_variables);
 
-            for (int i = 0; i < num_variables ; i++) {
-                printf("Variable %d\t\ttype: %u\t\tvalue: %lld\t\tname: %s\n", i, variables[i].type, variables[i].value, variables[i].name);
-            }
+//            for (int i = 0; i < num_variables; i++) {
+//                printf("Variable %d\t\ttype: %u\t\tvalue: %lld\t\tname: %s\n", i, variables[i].type, variables[i].value,
+//                       variables[i].name);
+//            }
 
             // if function returns null, there is an error
             if (tokens == NULL) {
@@ -81,10 +82,7 @@ int main() {
                         continue;
                     } else {
 
-                        // for all variables in variables array
-                        for (int i = 0; i < num_variables; i++) {
-                            fprintf(file, "\t%%%s = alloca i32\n", variables[i].name);
-                        }
+
                         // If the expression is an equation
                         if (formatted[1].type == TOKEN_TYPE_EQUALS) {
                             equalFlag = 1;
@@ -129,8 +127,9 @@ int main() {
                             Token *postfix = infixToPostfix(formatted, num_tokens, &error);
 
                             // print all elements of postfix
-                            for (int i = 0; i < num_tokens ; i++) {
-                                printf("Postfix %d\t\ttype: %u\t\tvalue: %lld\t\tname: %s\n", i, postfix[i].type, postfix[i].value, postfix[i].name);
+                            for (int i = 0; i < num_tokens; i++) {
+                                printf("Postfix %d\t\ttype: %u\t\tvalue: %lld\t\tname: %s\n", i, postfix[i].type,
+                                       postfix[i].value, postfix[i].name);
                             }
 
                             // if there is error in converting to postfix
@@ -181,6 +180,11 @@ int main() {
         lineCount++;
         bok++;
     }
+    // for all variables in variables array
+    for (int i = 0; i < num_variables; i++) {
+        fprintf(file, "\t%%%s = alloca i32\n", variables[i].name);
+    }
+
     fprintf(file, "\tret i32 0\n");
     fprintf(file, "%c", '}'); // print closing bracket
     fclose(file);
