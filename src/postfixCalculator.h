@@ -153,13 +153,20 @@ LLI rightRotate(LLI n, LLI d) {
 }
 
 void modifyName(Token token) {
-    char *new_name = malloc(sizeof(char) * 256);  // create a new char array to hold the new name
+    printf("Pre %s\n", token.name);
     if (token.type == TOKEN_TYPE_IDENTIFIER) {
-        sprintf(new_name, "i32 %s", token.name);  // concatenate "i32 " and token.name into new_name
-        token.name = strdup(new_name);  // update token.name with the new string
+        char *dest = "i32 %";
+        char *new_name = malloc(strlen(dest) + strlen(token.name) + 1); // allocate memory for new string
+        strcpy(new_name, dest); // copy "i32 " to new string
+        strcat(new_name, token.name); // concatenate token.name to new string
+        token.name = new_name; // update token name to new string
+
     } else {
-        sprintf(token.name, "%lld", token.value);
+        char *new_name = (char *) malloc(20 * sizeof(char)); // allocate enough memory to hold the formatted string
+        sprintf(new_name, "%lld", token.value); // write the formatted string to the allocated memory
+        token.name = new_name; // update token.name to point to the new string
     }
+    printf("Post %s\n", token.name);
 }
 
 // The main function that returns value
@@ -173,6 +180,8 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
     LLI val2 = 0;
     Token newToken;
     newToken.type = TOKEN_TYPE_IDENTIFIER;
+    newToken.name = malloc(250 * sizeof(char));
+    newToken.value = 0;
 
     int i = 0;
     // Scan all characters one by one
@@ -219,8 +228,13 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
 //                            printf("\t%%%d = load i32, i32* %%%s\n", *variableCount, variable.name);
                             fprintf(file, "\t%%%d = load i32, i32* %%%s\n", (*variableCount)++, token2.name);
                         }
-                        // print tokens
 
+                        printf("PRE  token1.name  %s,token2.name  %s\n", token1.name, token2.name);
+
+                        modifyName(token1);
+                        modifyName(token2);
+
+                        printf("POST  token1.name  %s,token2.name  %s\n", token1.name, token2.name);
 
                         // evaluate the expression
                         switch (postfix[i].name[0]) {
