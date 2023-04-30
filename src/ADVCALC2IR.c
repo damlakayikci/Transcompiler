@@ -11,6 +11,35 @@
 #define MAX_LENGTH 256
 #define MAX_VARIABLES 128
 
+char* read_last_line(const char* filename) {
+    FILE* fp = fopen(filename, "r");
+    if (fp == NULL) {
+        fprintf(stderr, "Error: failed to open file \"%s\".\n", filename);
+        return NULL;
+    }
+
+    char* line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    int linecount = 0;
+
+    // Count the number of lines in the file
+    while ((read = getline(&line, &len, fp)) != -1) {
+        linecount++;
+    }
+
+    // Seek to the beginning of the last line
+    fseek(fp, 0, SEEK_SET);
+    for (int i = 0; i < linecount-1; i++) {
+        getline(&line, &len, fp);
+    }
+
+    // Read the last line
+    getline(&line, &len, fp);
+
+    fclose(fp);
+    return line;
+}
 
 int main() {
     int num_variables = 0;
@@ -20,17 +49,21 @@ int main() {
     int variableCount = 0;
     char *operations[256];
     int opCount = 0;
+    int numLinesInFile = 0;
 
-    FILE *file;
-    char filename[] = "file.ll";
 
-    file = fopen(filename, "w");
-    if (file == NULL) {
+
+    FILE *intermediate;
+    char nameFile[] = "intermediate.ll";
+
+    intermediate = fopen(nameFile, "w");
+    if (intermediate == NULL) {
         printf("Error creating file.\n");
         return 1;
     }
-    char beginning[] = "; ModuleID = 'advcalc2ir'\ndeclare i32 @printf(i8*, ...)\n\n@print.str = constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n";
-    fprintf(file, "%s", beginning);
+
+
+
 
     while (bok < 3) {
         int num_tokens = 0; //  keep track of the number of tokens
@@ -84,8 +117,6 @@ int main() {
                         printf("Error!\n");
                         continue;
                     } else {
-
-
                         // If the expression is an equation
                         if (formatted[1].type == TOKEN_TYPE_EQUALS) {
                             equalFlag = 1;
@@ -108,7 +139,7 @@ int main() {
                             } else {
 
                                 long long int result = evaluatePostfix(postfix, num_tokens - 2, variables,
-                                                                       num_variables, &error, file, &variableCount,
+                                                                       num_variables, &error, intermediate, &variableCount,
                                                                        operations, &opCount);
 
                                 // print elements of operations
@@ -121,8 +152,14 @@ int main() {
                                     printf("Error!\n");
                                     continue;
                                 } else {
-                                    int var_index = returnIndex(variables, num_variables, variable.name);
-                                    variables[var_index].value = result;
+                                    if (num_tokens== 3) {
+                                        fprintf(intermediate, "\tstore %lld, i32* %%%s\n", tokens[2].value, tokens[0].name);
+                                    } else{
+                                        int var_index = returnIndex(variables, num_variables, variable.name);
+                                        variables[var_index].value = result;
+                                        // TODO a=3 formatindaysa diye bi if eklenicek ustte ne var bilmiyorum
+                                        fprintf(intermediate, "\tstore i32 %%%d, i32* %%%s\n", num_variables, tokens[0].name);
+                                    }
 
                                 }
                             }
@@ -152,7 +189,7 @@ int main() {
                             } else {
 
                                 long long int result = evaluatePostfix(postfix, num_tokens, variables, num_variables,
-                                                                       &error, file, &variableCount, operations,
+                                                                       &error, intermediate, &variableCount, operations,
                                                                        &opCount);
 
                                 // print elements of operations
@@ -199,6 +236,18 @@ int main() {
         lineCount++;
         bok++;
     }
+
+    FILE *file;
+    char filename[] = "file.ll";
+    file = fopen(filename, "w");
+    if (file == NULL) {
+        printf("Error creating file.\n");
+        return 1;
+    }
+
+
+    char beginning[] = "; ModuleID = 'advcalc2ir'\ndeclare i32 @printf(i8*, ...)\n\n@print.str = constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n";
+    fprintf(file, "%s", beginning);
     // for all variables in variables array
     for (int i = 0; i < num_variables; i++) {
         fprintf(file, "\t%%%s = alloca i32\n", variables[i].name);
