@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -69,7 +68,7 @@ int main() {
         int index = 0;     //  keep track of the index of the tokens
         int output_count = 0;
         int error = 0; // boolean for errors
-        int lineCount = 0;
+        int lineCount = 1;
         int equalFlag = 0;
 
 // TODO bu kalkicak sanirim
@@ -215,7 +214,9 @@ int main() {
         lineCount++;
         bok++;
     }
+    //if(error){
 
+    }
     // TODO      Buraya error check yapilcak error varsa dosyalari sil
     // close the intermediate file
     fclose(intermediate);

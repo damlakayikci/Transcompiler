@@ -188,23 +188,35 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
         if (postfix[i].name != NULL) {
             if (isOperator(postfix[i].name)) {
                 // check not operator first
-//                if (strcmp(postfix[i].name, "!") == 0) {
-//                    if (peek(&stack).type == TOKEN_TYPE_IDENTIFIER) {
-//                        if (returnIndex(variables, num_variables, peek(&stack).name) == -1) {
-//                            val1 = popPostfix(&stack).value;
-//                        } else { // if variable is found in the variable list get the value from the variable list
-//                            val1 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)].value;
-//                        }
-//                        pushPostfix(&stack, ~val1);
-//                    } else if (peek(&stack).type == TOKEN_TYPE_NUMBER) {
-//                        val1 = popPostfix(&stack).value;
-//                        pushPostfix(&stack, ~val1);
-//                    } else {
-//                        *error = 1;
-//                        return 0;
-//                    }
-//                } else
-                if (peek(&stack).type == TOKEN_TYPE_IDENTIFIER || peek(&stack).type == TOKEN_TYPE_NUMBER) {
+                if (strcmp(postfix[i].name, "!") == 0) {
+                    if (peek(&stack).type == TOKEN_TYPE_IDENTIFIER) {
+                        if (returnIndex(variables, num_variables, peek(&stack).name) == -1) {
+                            token1 = popPostfix(&stack);
+                            val1 = token1.value;
+                        } else { // if variable is found in the variable list get the value from the variable list
+                            token1 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)];
+                            val1 = token1.value;
+                            fprintf(file, "\t%%%d = load i32, i32* %%%s\n", (++*variableCount), token1.name);
+                        }
+                        modifyName(&token1, *variableCount);
+                        sprintf(newToken.name, "%%%d", ++(*variableCount));
+                        fprintf(file, "\t%s = xor i32 %s, %s\n", newToken.name, token1.name, "-1");
+                        newToken.value = ~val1;
+                        pushPostfix(&stack, newToken);
+                        break;
+                    } else if (peek(&stack).type == TOKEN_TYPE_NUMBER) {
+                        token1 = popPostfix(&stack);
+                        val1 = token1.value;
+                        modifyName(&token1, *variableCount);
+                        printf(newToken.name, "%%%d", ++(*variableCount));
+                        fprintf(file, "\t%s = xor i32 %s, %s\n", newToken.name, token1.name, "-1");
+                        newToken.value = ~val1;
+                        pushPostfix(&stack, newToken);
+                    } else {
+                        *error = 1;
+                        return 0;
+                    }
+                } else if (peek(&stack).type == TOKEN_TYPE_IDENTIFIER || peek(&stack).type == TOKEN_TYPE_NUMBER) {
                     // if it is a number
                     if (returnIndex(variables, num_variables, peek(&stack).name) == -1) {
                         token1 = popPostfix(&stack);
@@ -266,6 +278,7 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                             case '$':
                                 sprintf(newToken.name, "%%%d", ++(*variableCount));
                                 newToken.value = leftRotate(val2, val1);
+                                fprintf(file, "\t%s = shl i32 %s, %s\n", newToken.name, token2.name, token1.name);
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '#':
