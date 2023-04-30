@@ -18,6 +18,8 @@ int main() {
     char input[256];
     int bok = 0;
     int variableCount = 0;
+    char *operations[256] ;
+    int opCount = 0;
 
     FILE *file;
     char filename[] = "file.ll";
@@ -29,7 +31,6 @@ int main() {
     }
     char beginning[] = "; ModuleID = 'advcalc2ir'\ndeclare i32 @printf(i8*, ...)\n\n@print.str = constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n";
     fprintf(file, "%s", beginning);
-
 
     while (bok < 3) {
         int num_tokens = 0; //  keep track of the number of tokens
@@ -96,7 +97,6 @@ int main() {
 
                             // the expression after the equal sign will be our value, so we take formatted form second element
                             Token *postfix = infixToPostfix(&formatted[2], num_tokens - 2, &error);
-
 //                            for (int i = 0; i < num_tokens; i++) {
 //                                printf("Postfix %d\t\ttype: %u\t\tvalue: %lld\t\tname: %s\n", i, postfix[i].type,
 //                                       postfix[i].value, postfix[i].name);
@@ -106,190 +106,102 @@ int main() {
                                 printf("Error!\n");
                                 continue;
                             } else {
-                                char *operations[256];
-                                int opCount = 0;
-                                long long int result = evaluatePostfix(postfix, num_tokens - 2, variables,
-                                                                       num_variables, &error, file, &variableCount,
-                                                                       operations, &opCount);
+
+                                long long int result = evaluatePostfix(postfix, num_tokens - 2, variables,num_variables, &error, file, &variableCount, operations, &opCount);
 
                                 // print elements of operations
                                 for (int i = 0; i < opCount; i++) {
                                     printf("Eq Operations %d\t\t%s\n", i, operations[i]);
-                                    i++;
                                 }
 
                                 // if there is an error in evaluating the postfix
-                                // if there is error in converting to postfix
                                 if (error) {
                                     printf("Error!\n");
                                     continue;
                                 } else {
-                                    long long int result = evaluatePostfix(postfix, num_tokens - 2, variables,
-                                                                           num_variables, &error, file, &variableCount);
+                                    int var_index = returnIndex(variables, num_variables, variable.name);
+                                    variables[var_index].value = result;
 
-                                    // if there is an error in evaluating the postfix
-                                    if (error) {
-                                        printf("Error!\n");
-                                        continue;
-                                    } else {
-                                        int var_index = returnIndex(variables, num_variables, variable.name);
-                                        variables[var_index].value = result;
-
-                                    }
                                 }
-                                int i = 0;
-                                if (postfix != NULL)
-                                    while (postfix[i].name != NULL) {
-                                        postfix[i].name = NULL;
-                                        postfix[i].value = 0;
-                                        postfix[i].type = 0;
-                                    }
                             }
-                            // if there is no equal sign in the input
-                            else {
-                                equalFlag = 0;
-                                Token *postfix = infixToPostfix(formatted, num_tokens, &error);
-
-                                // print all elements of postfix
-                                for (int i = 0; i < num_tokens; i++) {
-                                    printf("Postfix %d\t\ttype: %u\t\tvalue: %lld\t\tname: %s\n", i, postfix[i].type,
-                                           postfix[i].value, postfix[i].name);
+                            int i = 0;
+                            if (postfix != NULL)
+                                while (postfix[i].name != NULL) {
+                                    postfix[i].name = NULL;
+                                    postfix[i].value = 0;
+                                    postfix[i].type = 0;
                                 }
-
-                                <<<<<<< Updated upstream
-                                // print all elements of postfix
-                                for (int i = 0; i < num_tokens; i++) {
-                                    printf("Postfix %d\t\ttype: %u\t\tvalue: %lld\t\tname: %s\n", i, postfix[i].type,
-                                           postfix[i].value, postfix[i].name);
-                                }
-
-                                // if there is error in converting to postfix
-                                if (error) {
-                                    printf("Error!\n");
-                                    continue;
-                                } else {
-                                    char *operations[256];
-                                    int opCount = 0; // keep count of operations
-                                    long long int result = evaluatePostfix(postfix, num_tokens, variables,
-                                                                           num_variables,
-                                                                           &error, file, &variableCount, operations,
-                                                                           &opCount);
-
-                                    // print elements of operations
-                                    // print elements of operations
-                                    for (int i = 0; i < opCount; i++) {
-                                        printf("Noteq Operations %d\t\t%s\n", i, operations[i]);
-                                        i++;
-                                    }
-                                    // if there is an error in evaluating the postfix
-                                    // if there is error in converting to postfix
-                                    if (error) {
-                                        printf("Error!\n");
-                                        continue;
-                                    } else {
-                                        printf("%lld\n", result);
-                                    }
-                                }
-                                int i = 0;
-                                if (postfix != NULL)
-                                    while (postfix[i].type != 0) {
-                                        postfix[i].name = NULL;
-                                        postfix[i].type = 0;
-                                        postfix[i].value = 0;
-                                        ++i;
-                                    }
-                            }
                         }
-                        int i = 0;
-                        if (formatted != NULL)
-                            while (formatted[index].type != 0) {
-                                formatted[i].name = NULL;
-                                formatted[i].type = 0;
-                                formatted[i].value = 0;
-                                ++i;
+                            // if there is no equal sign in the input
+                        else {
+                            equalFlag = 0;
+                            Token *postfix = infixToPostfix(formatted, num_tokens, &error);
+
+                            // print all elements of postfix
+                            for (int i = 0; i < num_tokens; i++) {
+                                printf("Postfix %d\t\ttype: %u\t\tvalue: %lld\t\tname: %s\n", i, postfix[i].type,
+                                       postfix[i].value, postfix[i].name);
                             }
+
+                            // if there is error in converting to postfix
+                            if (error) {
+                                printf("Error!\n");
+                                continue;
+                            } else {
+
+                                long long int result = evaluatePostfix(postfix, num_tokens, variables, num_variables,&error, file, &variableCount, operations, &opCount);
+
+                                // print elements of operations
+                                // print elements of operations
+                                for (int i = 0; i < opCount; i++) {
+                                    printf("Noteq Operations %d\t\t%s\n", i, operations[i]);
+                                }
+                                // if there is an error in evaluating the postfix
+                                if (error) {
+                                    printf("Error!\n");
+                                    continue;
+                                } else {
+                                    printf("%lld\n", result);
+                                }
+                            }
+                            int i = 0;
+                            if (postfix != NULL)
+                                while (postfix[i].type != 0) {
+                                    postfix[i].name = NULL;
+                                    postfix[i].type = 0;
+                                    postfix[i].value = 0;
+                                    ++i;
+                                }
+                        }
                     }
+                    int i = 0;
+                    if (formatted != NULL)
+                        while (formatted[index].type != 0) {
+                            formatted[i].name = NULL;
+                            formatted[i].type = 0;
+                            formatted[i].value = 0;
+                            ++i;
+                        }
                 }
-                int i = 0;
-                if (tokens != NULL)
-                    while (tokens[i].type != 0) {
-                        tokens[i].name = NULL;
-                        tokens[i].type = 0;
-                        tokens[i].value = 0;
-                    }
             }
-            lineCount++;
-            bok++;
+            int i = 0;
+            if (tokens != NULL)
+                while (tokens[i].type != 0) {
+                    tokens[i].name = NULL;
+                    tokens[i].type = 0;
+                    tokens[i].value = 0;
+                }
         }
-        // for all variables in variables array
-        for (int i = 0; i < num_variables; i++) {
-            fprintf(file, "\t%%%s = alloca i32\n", variables[i].name);
-        }
-
-
-        long long int result = evaluatePostfix(postfix, num_tokens, variables, num_variables,
-                                               &error, file, &variableCount);
-
-        // if there is an error in evaluating the postfix
-        if (error) {
-            printf("Error!\n");
-            continue;
-        } else {
-            printf("%lld\n", result);
-        }
+        lineCount++;
+        bok++;
     }
-    int i = 0;
-    if (postfix != NULL)
-        while (postfix[i].type != 0) {
-            postfix[i].name = NULL;
-            postfix[i].type = 0;
-            postfix[i].value = 0;
-            ++i;
-        }
-}
+    // for all variables in variables array
+    for (int i = 0; i < num_variables; i++) {
+        fprintf(file, "\t%%%s = alloca i32\n", variables[i].name);
+    }
 
-}
-int i = 0;
-if (formatted != NULL)
-while (formatted[index].type != 0) {
-formatted[i].
-name = NULL;
-formatted[i].
-type = 0;
-formatted[i].
-value = 0;
-++
-i;
-}
-}
-}
-int i = 0;
-if (tokens != NULL)
-while (tokens[i].type != 0) {
-tokens[i].
-name = NULL;
-tokens[i].
-type = 0;
-tokens[i].
-value = 0;
-}
-}
-lineCount++;
-bok++;
-}
-// for all variables in variables array
-for (
-int i = 0;
-i<num_variables;
-i++) {
-fprintf(file,
-"\t%%%s = alloca i32\n", variables[i].name);
-}
-
-fprintf(file,
-"\tret i32 0\n");
-fprintf(file,
-"%c", '}'); // print closing bracket
-fclose(file);
-return 0;
+    fprintf(file, "\tret i32 0\n");
+    fprintf(file, "%c", '}'); // print closing bracket
+    fclose(file);
+    return 0;
 }

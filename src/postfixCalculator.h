@@ -173,7 +173,7 @@ void modifyName(Token *token, int variableCount) {
 // The main function that returns value
 // of a given postfix expression
 LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_variables, int *error, FILE *file,
-                    int *variableCount) {
+                    int *variableCount, char* operations[], int* opCount) {
     TokenStack stack;
     stack.top = -1;
     Token token1, token2;
