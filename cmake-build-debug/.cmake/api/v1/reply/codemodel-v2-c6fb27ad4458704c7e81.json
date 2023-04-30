@@ -39,7 +39,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "p2::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-p2-Debug-9b279850c172d06902b7.json",
+					"jsonFile" : "target-p2-Debug-137321998b2c485a1461.json",
 					"name" : "p2",
 					"projectIndex" : 0
 				}
@@ -49,12 +49,12 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "/Users/damlakayikci/Desktop/CmpE/okul/CmpE230/p2/cmake-build-debug",
-		"source" : "/Users/damlakayikci/Desktop/CmpE/okul/CmpE230/p2"
+		"build" : "/Users/cgty/Desktop/Ders Dosyalar\u0131/CmpE Projects/Repositories/Transcompiler/cmake-build-debug",
+		"source" : "/Users/cgty/Desktop/Ders Dosyalar\u0131/CmpE Projects/Repositories/Transcompiler"
 	},
 	"version" : 
 	{
 		"major" : 2,
-		"minor" : 3
+		"minor" : 4
 	}
 }

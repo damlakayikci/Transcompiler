@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 typedef enum {
     TOKEN_TYPE_EMPTY,
     TOKEN_TYPE_NUMBER,
@@ -17,6 +19,8 @@ typedef enum {
     TOKEN_TYPE_COMMA,
     TOKEN_TYPE_IDENTIFIER,
     TOKEN_TYPE_EQUALS,
+    TOKEN_TYPE_DIVISION,
+    TOKEN_TYPE_MODULUS,
 } TokenType;
 
 #define LLI long long int
@@ -25,4 +29,5 @@ typedef struct {
     TokenType type;
     LLI value;
     char *name;
+    bool isDefined;
 } Token;

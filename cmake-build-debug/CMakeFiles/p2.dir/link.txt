@@ -1,0 +1,1 @@
+/usr/bin/clang -Wall -Wextra -O3 -fPIC -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names -L/usr/lib/llvm-11/lib -lLLVM-11 CMakeFiles/p2.dir/src/main.c.o -o p2 

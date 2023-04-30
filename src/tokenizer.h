@@ -1,3 +1,8 @@
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include "token.h"
+
 #define MAX_LENGTH 256
 
 
@@ -11,7 +16,7 @@ int isOperatorSymbol(char *ch) {
 }
 
 int isSymbol(char *ch) {
-    return strchr("+-*&|(),=", *ch) != NULL;
+    return strchr("+-*&|(),=/%", *ch) != NULL;
 }
 
 int returnIndex(Token *variables, int num_tokens, char *name) {
@@ -35,11 +40,6 @@ Token *tokenizer(char *input, int *num_tokens, Token *variables, int *num_variab
     // iterate through the input string, one character at a time
     int i = 0;
     while (i < input_length) {
-        if (input[i] == '%') {
-            tokens[i].name = "Comment_line";
-
-            return tokens;
-        }
         // if the current character is a digit, parse it as a number
         if (isdigit(input[i])) {
             // find the end of the number
@@ -60,6 +60,7 @@ Token *tokenizer(char *input, int *num_tokens, Token *variables, int *num_variab
             tokens[num_local_tokens].value = num;
             tokens[num_local_tokens].name = "num_str";
             tokens[num_local_tokens].type = TOKEN_TYPE_NUMBER;
+            tokens[num_local_tokens].isDefined = 0;
             (num_local_tokens)++;
             (*num_tokens)++;
 
@@ -85,32 +86,40 @@ Token *tokenizer(char *input, int *num_tokens, Token *variables, int *num_variab
                 if (strcmp(name, "xor") == 0) {
                     tokens[num_local_tokens].type = TOKEN_TYPE_XOR;
                     tokens[num_local_tokens].name = "^";
+                    tokens[num_local_tokens].isDefined = 0;
                 } else if (strcmp(name, "ls") == 0) {
                     tokens[num_local_tokens].type = TOKEN_TYPE_LS;
                     tokens[num_local_tokens].name = "<";
+                    tokens[num_local_tokens].isDefined = 0;
                 } else if (strcmp(name, "rs") == 0) {
                     tokens[num_local_tokens].type = TOKEN_TYPE_RS;
                     tokens[num_local_tokens].name = ">";
+                    tokens[num_local_tokens].isDefined = 0;
                 } else if (strcmp(name, "lr") == 0) {
                     tokens[num_local_tokens].type = TOKEN_TYPE_LR;
                     tokens[num_local_tokens].name = "$";
+                    tokens[num_local_tokens].isDefined = 0;
                 } else if (strcmp(name, "rr") == 0) {
                     tokens[num_local_tokens].type = TOKEN_TYPE_RR;
                     tokens[num_local_tokens].name = "#";
+                    tokens[num_local_tokens].isDefined = 0;
                 } else if (strcmp(name, "not") == 0) {
                     tokens[num_local_tokens].type = TOKEN_TYPE_NOT;
                     tokens[num_local_tokens].name = "!";
+                    tokens[num_local_tokens].isDefined = 0;
                 }
             } else {   // if it's a variable, add the string as a new token to the array
                 tokens[num_local_tokens].value = 0;
                 tokens[num_local_tokens].name = name;
                 tokens[num_local_tokens].type = TOKEN_TYPE_IDENTIFIER;
+                tokens[num_local_tokens].isDefined = 0;
 
                 // If variable is not on the array, add it to the array of variables
                 if (returnIndex(variables, *num_variables, name) == -1) {
                     variables[*num_variables].value = 0;
                     variables[*num_variables].name = name;
                     variables[*num_variables].type = TOKEN_TYPE_IDENTIFIER;
+                    tokens[num_local_tokens].isDefined = 0;
                     (*num_variables)++;
                 }
             }
@@ -142,10 +151,15 @@ Token *tokenizer(char *input, int *num_tokens, Token *variables, int *num_variab
                 tokens[num_local_tokens].type = TOKEN_TYPE_COMMA;
             } else if (input[i] == '=') {
                 tokens[num_local_tokens].type = TOKEN_TYPE_EQUALS;
+            } else if (input[i] == '/') {
+                tokens[num_local_tokens].type = TOKEN_TYPE_DIVISION;
+            } else if (input[i] == '%') {
+                tokens[num_local_tokens].type = TOKEN_TYPE_MODULUS;
             }
             tokens[num_local_tokens].name = name;
             tokens[num_local_tokens].name[1] = '\0';
             tokens[num_local_tokens].value = 0;
+            tokens[num_local_tokens].isDefined = 0;
             (num_local_tokens)++;
             (*num_tokens)++;
             i++;

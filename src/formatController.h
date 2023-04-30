@@ -1,4 +1,8 @@
 
+#include <string.h>
+#include <stdlib.h>
+#include "token.h"
+
 #define MAX_LENGTH 256
 
 int isFunctionOperator(char *ch) {
@@ -50,6 +54,7 @@ Token *formatController(Token *input, int inputSize, int recursive, int *index, 
             if (strcmp(input[(*index) + 1].name, "(") == 0) {   //if next is an open parenthesis
                 output[(*index) + 1].type = TOKEN_TYPE_OPENPARENTHESIS;   //add it to the output
                 output[(*index) + 1].name = "(";
+                output[(*index) + 1].isDefined = 0;
                 (*output_count)++;    //increase the output count
                 parenthesisCount++;
                 innerParenthesisCount++;
@@ -75,6 +80,7 @@ Token *formatController(Token *input, int inputSize, int recursive, int *index, 
                 else if (strcmp(input[(*index) + j].name, "(") == 0) {       //if it is an open parenthesis
                     output[(*index) + j].type = TOKEN_TYPE_OPENPARENTHESIS;   //add it to the output
                     output[(*index) + j].name = "(";
+                    output[(*index) + j].isDefined = 0;
                     (*output_count)++;    //increase the output count
                     parenthesisCount++;
                     innerParenthesisCount++;
@@ -84,6 +90,7 @@ Token *formatController(Token *input, int inputSize, int recursive, int *index, 
                 else if (strcmp(input[(*index) + j].name, ")") == 0) {      //if it is a close parenthesis
                     output[(*index) + j].type = TOKEN_TYPE_CLOSEPARENTHESIS;    //add it to the output
                     output[(*index) + j].name = ")";
+                    output[(*index) + j].isDefined = 0;
                     (*output_count)++;   //increase the output count
                     parenthesisCount--;
                     innerParenthesisCount--;
@@ -119,12 +126,13 @@ Token *formatController(Token *input, int inputSize, int recursive, int *index, 
                         output[(*index) + j].type = input[recIndex].type;
                         output[(*index) + j].name = input[recIndex].name;
                         output[(*index) + j].value = input[recIndex].value;
+                        output[(*index) + j].isDefined = input[recIndex].isDefined;
 
                     } else {
                         output[(*index) + j].type = input[nonRecIndex].type;
                         output[(*index) + j].name = input[nonRecIndex].name;
                         output[(*index) + j].value = input[nonRecIndex].value;
-
+                        output[(*index) + j].isDefined = input[nonRecIndex].isDefined;
                     }
                     commaCount++;  //increase the comma count
                     (*output_count)++;   //increase the output count
@@ -137,6 +145,7 @@ Token *formatController(Token *input, int inputSize, int recursive, int *index, 
                     output[(*index) + j].type = input[(*index) + j].type;
                     output[(*index) + j].name = input[(*index) + j].name;
                     output[(*index) + j].value = input[(*index) + j].value;
+                    output[(*index) + j].isDefined = input[(*index) + j].isDefined;
                     (*output_count)++;   //increase the output count
                     j++;
                 }
@@ -160,6 +169,7 @@ Token *formatController(Token *input, int inputSize, int recursive, int *index, 
             output[(*index)].type = TOKEN_TYPE_OPENPARENTHESIS;   //add it to the output
             output[(*index)].name = "(";
             output[(*index)].value = input[(*index)].value;
+            output[(*index)].isDefined = input[(*index)].isDefined;
             (*output_count)++;    //increase the output count
             (*index)++;
             parenthesisCount++;
@@ -167,6 +177,7 @@ Token *formatController(Token *input, int inputSize, int recursive, int *index, 
             output[(*index)].type = TOKEN_TYPE_CLOSEPARENTHESIS;    //add it to the output
             output[(*index)].name = ")";
             output[(*index)].value = input[(*index)].value;
+            output[(*index)].isDefined = input[(*index)].isDefined;
             (*output_count)++;   //increase the output count
             (*index)++;
             parenthesisCount--;
@@ -176,6 +187,7 @@ Token *formatController(Token *input, int inputSize, int recursive, int *index, 
             output[(*index)].type = input[(*index)].type;
             output[(*index)].name = input[(*index)].name;
             output[(*index)].value = input[(*index)].value;
+            output[(*index)].isDefined = input[(*index)].isDefined;
             (*output_count)++;  //increase the output count
             (*index)++;
         }
