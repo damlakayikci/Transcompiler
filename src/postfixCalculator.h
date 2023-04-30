@@ -282,9 +282,16 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '#':
-                                sprintf(newToken.name, "%%%d", ++(*variableCount));
                                 newToken.value = rightRotate(val2, val1);
+                                sprintf(newToken.name, "%%%d", ++(*variableCount));
                                 fprintf(file, "\t%s = ashr i32 %s, %s\n", newToken.name, token2.name, token1.name);
+                                sprintf(newToken.name, "%%%d", ++(*variableCount));
+                                fprintf(file, "\t%s = sub i32 %s, %s\n", newToken.name, "32", token1.name);
+                                sprintf(newToken.name, "%%%d", ++(*variableCount));
+                                fprintf(file, "\t%s = shl i32 %s, %%%d\n", newToken.name, token2.name, (*variableCount) - 1);
+                                sprintf(newToken.name, "%%%d", ++(*variableCount));
+                                fprintf(file, "\t%s = or i32 %%%d, %%%d\n", newToken.name, (*variableCount-3), (*variableCount) - 1);
+                                //return (n >> d) | (n << (INT_BITS - d));
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '<':
