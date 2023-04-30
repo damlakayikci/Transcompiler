@@ -64,8 +64,8 @@ int main() {
 
 
 
-
-    while (bok < 3) {
+// TODO bu ne sikimse o olucak
+    while (bok < 7) {
         int num_tokens = 0; //  keep track of the number of tokens
         int index = 0;     //  keep track of the index of the tokens
         int output_count = 0;
@@ -73,7 +73,7 @@ int main() {
         int lineCount = 0;
         int equalFlag = 0;
 
-
+// TODO bu kalkicak sanirim
         printf(">");
         fgets(input, 256, stdin); //  read the input
 
@@ -94,14 +94,9 @@ int main() {
             // tokenize the input
             Token *tokens = tokenizer(input, &num_tokens, variables, &num_variables);
 
-//            for (int i = 0; i < num_variables; i++) {
-//                printf("Variable %d\t\ttype: %u\t\tvalue: %lld\t\tname: %s\n", i, variables[i].type, variables[i].value,
-//                       variables[i].name);
-//            }
-
             // if function returns null, there is an error
             if (tokens == NULL) {
-                printf("Error!\n");
+                printf("Error on line %d!\n", lineCount);
             } else if (num_tokens == 0) {
                 continue;
             } else {
@@ -114,7 +109,7 @@ int main() {
 
                     // if formatController returns null, there is an error
                     if (formatted == NULL) {
-                        printf("Error!\n");
+                        printf("Error on line %d!\n", lineCount);
                         continue;
                     } else {
                         // If the expression is an equation
@@ -128,13 +123,10 @@ int main() {
 
                             // the expression after the equal sign will be our value, so we take formatted form second element
                             Token *postfix = infixToPostfix(&formatted[2], num_tokens - 2, &error);
-//                            for (int i = 0; i < num_tokens; i++) {
-//                                printf("Postfix %d\t\ttype: %u\t\tvalue: %lld\t\tname: %s\n", i, postfix[i].type,
-//                                       postfix[i].value, postfix[i].name);
-//                            }
+
                             // if there is error in converting to postfix
                             if (error) {
-                                printf("Error!\n");
+                                printf("Error on line %d!\n", lineCount);
                                 continue;
                             } else {
 
@@ -142,14 +134,10 @@ int main() {
                                                                        num_variables, &error, intermediate, &variableCount,
                                                                        operations, &opCount);
 
-                                // print elements of operations
-                                for (int i = 0; i < opCount; i++) {
-                                    printf("Eq Operations %d\t\t%s\n", i, operations[i]);
-                                }
 
                                 // if there is an error in evaluating the postfix
                                 if (error) {
-                                    printf("Error!\n");
+                                    printf("Error on line %d!\n", lineCount);
                                     continue;
                                 } else {
                                     if (num_tokens== 3) {
@@ -176,15 +164,9 @@ int main() {
                             equalFlag = 0;
                             Token *postfix = infixToPostfix(formatted, num_tokens, &error);
 
-                            // print all elements of postfix
-                            for (int i = 0; i < num_tokens; i++) {
-                                printf("Postfix %d\t\ttype: %u\t\tvalue: %lld\t\tname: %s\n", i, postfix[i].type,
-                                       postfix[i].value, postfix[i].name);
-                            }
-
                             // if there is error in converting to postfix
                             if (error) {
-                                printf("Error!\n");
+                                printf("Error on line %d!\n", lineCount);
                                 continue;
                             } else {
 
@@ -192,19 +174,14 @@ int main() {
                                                                        &error, intermediate, &variableCount, operations,
                                                                        &opCount);
 
-                                // print elements of operations
-                                // print elements of operations
-                                for (int i = 0; i < opCount; i++) {
-                                    printf("Noteq Operations %d\t\t%s\n", i, operations[i]);
-                                }
                                 // if there is an error in evaluating the postfix
                                 if (error) {
-                                    printf("Error!\n");
+                                    printf("Error on line %d!\n", lineCount);
                                     continue;
-                                } else {
+                                } else { // TODO buraya bak
                                     printf("%lld\n", result);
                                     // call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %8 )
-                                    fprintf(intermediate ,"\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)", variableCount);
+                                    fprintf(intermediate ,"\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d\n)", variableCount);
                                 }
                             }
                             int i = 0;
@@ -238,6 +215,8 @@ int main() {
         lineCount++;
         bok++;
     }
+
+    // TODO       DON'T FORGET  ERROR CHECK
     // close the intermediate file
     fclose(intermediate);
 
@@ -271,14 +250,14 @@ int main() {
     // Read contents from file
     c = fgetc(from);
     while (c != EOF){
-        fputc(c, file);
+        fputc(c, file); // write to file.ll
         c = fgetc(from);
     }
 
     fclose(from);
 
-    fprintf(file, "\tret i32 0\n");
-    fprintf(file, "%c", '}'); // print closing bracket
-    fclose(file);
+    fprintf(file, "\tret i32 0\n"); // write return value to file.ll
+    fprintf(file, "%c", '}'); // write closing bracket to file.ll
+    fclose(file); // close file.ll
     return 0;
 }
