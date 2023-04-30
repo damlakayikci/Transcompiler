@@ -18,7 +18,7 @@ int main() {
     char input[256];
     int bok = 0;
     int variableCount = 0;
-    char *operations[256] ;
+    char *operations[256];
     int opCount = 0;
 
     FILE *file;
@@ -107,7 +107,9 @@ int main() {
                                 continue;
                             } else {
 
-                                long long int result = evaluatePostfix(postfix, num_tokens - 2, variables,num_variables, &error, file, &variableCount, operations, &opCount);
+                                long long int result = evaluatePostfix(postfix, num_tokens - 2, variables,
+                                                                       num_variables, &error, file, &variableCount,
+                                                                       operations, &opCount);
 
                                 // print elements of operations
                                 for (int i = 0; i < opCount; i++) {
@@ -149,7 +151,9 @@ int main() {
                                 continue;
                             } else {
 
-                                long long int result = evaluatePostfix(postfix, num_tokens, variables, num_variables,&error, file, &variableCount, operations, &opCount);
+                                long long int result = evaluatePostfix(postfix, num_tokens, variables, num_variables,
+                                                                       &error, file, &variableCount, operations,
+                                                                       &opCount);
 
                                 // print elements of operations
                                 // print elements of operations
