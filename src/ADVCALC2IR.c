@@ -49,7 +49,6 @@ int main() {
     int variableCount = 0;
     char *operations[256];
     int opCount = 0;
-    int numLinesInFile = 0;
 
 
 
@@ -217,7 +216,7 @@ int main() {
         bok++;
     }
 
-    // TODO       DON'T FORGET  ERROR CHECK
+    // TODO      Buraya error check yapilcak error varsa dosyalari sil
     // close the intermediate file
     fclose(intermediate);
 
@@ -256,6 +255,7 @@ int main() {
     }
 
     fclose(from);
+    // TODO bu file silinsin
 
     fprintf(file, "\tret i32 0\n"); // write return value to file.ll
     fprintf(file, "%c", '}'); // write closing bracket to file.ll

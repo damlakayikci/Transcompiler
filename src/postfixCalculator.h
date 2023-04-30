@@ -227,6 +227,7 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
 
                         modifyName(&token2, *variableCount);
 
+                        // TODO bu eski haliydi bu ikisi silincek  ama en sonda sileriz diye biraktim
                         char str[256];
                         char *newStr = malloc(strlen(str) + 1); // Allocate memory
 
@@ -235,6 +236,7 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                             case '+':
                                 sprintf(newToken.name, "%%%d", ++(*variableCount));
                                 fprintf(file, "\t%s = add i32 %s, %s\n", newToken.name, token2.name, token1.name);
+                                // TODO bu eski haliydi bunu silcem operationsi yani ama en sonda sileriz diye biraktim
                                 sprintf(str, "\t%s = add i32 %s, %s\n", newToken.name, token2.name, token1.name);
                                 strcpy(newStr, str); // Copy string
                                 operations[*opCount] = newStr; // Assign new memory location to array element and increment opCount
