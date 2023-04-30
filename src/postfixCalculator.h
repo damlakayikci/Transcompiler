@@ -37,7 +37,7 @@ int precedence(char *operator) {
         return 2;
     else if (strcmp(operator, "+") == 0 || strcmp(operator, "-") == 0)
         return 3;
-    else if (strcmp(operator, "*") == 0 || strcmp(operator, "/") == 0 || strcmp(operator, "%") == 0)
+    else if (strcmp(operator, "*") == 0)
         return 4;
     else if (strcmp(operator, "^") == 0 || strcmp(operator, "<") == 0 || strcmp(operator, ">") == 0 ||
              strcmp(operator, "$") == 0 || strcmp(operator, "#") == 0)
@@ -53,8 +53,8 @@ int precedence(char *operator) {
 int isOperator(char *ch) {
     return (strcmp(ch, "+") == 0 || strcmp(ch, "-") == 0 || strcmp(ch, "*") == 0 ||
             strcmp(ch, "|") == 0 || strcmp(ch, "<") == 0 || strcmp(ch, ">") == 0 || strcmp(ch, "^") == 0 ||
-            strcmp(ch, "$") == 0 || strcmp(ch, "#") == 0 || strcmp(ch, "!") == 0 || strcmp(ch, "&") == 0 ||
-            strcmp(ch, "/") == 0 || strcmp(ch, "%") == 0);
+            strcmp(ch, "$") == 0 || strcmp(ch, "#") == 0 || strcmp(ch, "!") == 0) || strcmp(ch, "&") == 0;
+
 }
 
 
@@ -153,7 +153,7 @@ LLI rightRotate(LLI n, LLI d) {
 }
 
 void modifyName(Token *token, int variableCount) {
-  //  printf("Pre %s\n", token->name);
+    printf("Pre %s\n", token->name);
     if (token->type == TOKEN_TYPE_IDENTIFIER) {
         if (isalpha(token->name[0])) {
             char *new_name = malloc(sizeof(char) * 16); // allocate memory for the new name
@@ -167,7 +167,7 @@ void modifyName(Token *token, int variableCount) {
         //free(token->name); // free the old name
         token->name = new_name; // update token.name to point to the new string
     }
- //   printf("Post %s\n", token->name);
+    printf("Post %s\n", token->name);
 }
 
 
@@ -235,14 +235,11 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                             fprintf(file, "\t%%%d = load i32, i32* %%%s\n", (++*variableCount), token2.name);
                         }
 
-                      //  printf("PRE token2.name  %s\n", token2.name);
+                        printf("PRE token2.name  %s\n", token2.name);
 
                         modifyName(&token2, *variableCount);
 
-                      //  printf("POST  token2.name  %s\n", token2.name);
-
-                        char str[256];
-                        char *newStr = malloc(strlen(str) + 1); // Allocate memory
+                        printf("POST  token2.name  %s\n", token2.name);
 
                         // evaluate the expression
                         switch (postfix[i].name[0]) {
@@ -250,12 +247,12 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                                 printf("ADD Token1.name, Token2.name %s, %s\n", token1.name, token2.name);
                                 sprintf(newToken.name, "%%%d", ++(*variableCount));
                                 fprintf(file, "\t%s = add i32 %s, %s\n", newToken.name, token2.name, token1.name);
+                                char str[256];
                                 sprintf(str, "\t%s = add i32 %s, %s\n", newToken.name, token2.name, token1.name);
+                                char *newStr = malloc(strlen(str) + 1); // Allocate memory
                                 strcpy(newStr, str); // Copy string
-                                printf("ADD: NewStr %s\n", newStr);
-                                operations[*opCount] = newStr; // Assign new memory location to array element and increment opCount
-                                (*opCount)++;
-                                printf("ADD post NewStr %s\n", newStr);
+                                operations[*opCount] = newStr; // Assign new memory location to array element
+                                (*opCount)++; // Increment element count
                                 //printf("\t%s = add i32 %s, %s\n", newToken.name, name1, name2);
                                 newToken.value = val2 + val1;
                                 pushPostfix(&stack, newToken);
@@ -266,13 +263,6 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                                 printf("SUB Token1.name, Token2.name %s, %s\n", token1.name, token2.name);
                                 sprintf(newToken.name, "%%%d", ++(*variableCount));
                                 fprintf(file, "\t%s = sub i32 %s, %s\n", newToken.name, token2.name, token1.name);
-                                sprintf(str, "\t%s = sub i32 %s, %s\n", newToken.name, token2.name, token1.name);
-                                strcpy(newStr, str); // Copy string
-                                printf("SUB: NewStr %s\n", newStr);
-                                operations[*opCount] = newStr; // Assign new memory location to array element and increment opCount
-                                (*opCount)++;
-                                printf("SUB post NewStr %s\n", newStr);
-                                printf("Operation count %d\n", *opCount);
                                 newToken.value = val2 - val1;
                                 printf("SUB NewToken %d\t\ttype: %u\t\tvalue: %lld\t\tname: %s\n", i, newToken.type,
                                        newToken.value, newToken.name);
@@ -283,21 +273,15 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                                        token1.value, token2.name, token2.value);
                                 sprintf(newToken.name, "%%%d", ++(*variableCount));
                                 fprintf(file, "\t%s = mul i32 %s, %s\n", newToken.name, token2.name, token1.name);
-                                sprintf(str, "\t%s = mul i32 %s, %s\n", newToken.name, token2.name, token1.name);
-                                strcpy(newStr, str); // Copy string
-                                operations[*opCount] = newStr; // Assign new memory location to array element and increment opCount
-                                (*opCount)++;
                                 newToken.value = val2 * val1;
+                                printf("MUL: NewToken %d\t\ttype: %u\t\tvalue: %lld\t\tname: %s\n", i, newToken.type,
+                                       newToken.value, newToken.name);
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '^':
                                 sprintf(newToken.name, "%%%d", ++(*variableCount));
                                 newToken.value = val2 ^ val1;
                                 fprintf(file, "\t%s = xor i32 %s, %s\n", newToken.name, token2.name, token1.name);
-                                sprintf(str, "\t%s = xor i32 %s, %s\n", newToken.name, token2.name, token1.name);
-                                strcpy(newStr, str); // Copy string
-                                operations[*opCount] = newStr; // Assign new memory location to array element and increment opCount
-                                (*opCount)++;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '$':
@@ -314,40 +298,24 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                                 sprintf(newToken.name, "%%%d", ++(*variableCount));
                                 newToken.value = val2 << val1;
                                 fprintf(file, "\t%s = shl i32 %s, %s\n", newToken.name, token2.name, token1.name);
-                                sprintf(str, "\t%s = shl i32 %s, %s\n", newToken.name, token2.name, token1.name);
-                                strcpy(newStr, str); // Copy string
-                                operations[*opCount] = newStr; // Assign new memory location to array element and increment opCount
-                                (*opCount)++;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '>':
                                 sprintf(newToken.name, "%%%d", ++(*variableCount));
                                 newToken.value = val2 >> val1;
                                 fprintf(file, "\t%s = ashr i32 %s, %s\n", newToken.name, token2.name, token1.name);
-                                sprintf(str, "\t%s = ashr i32 %s, %s\n", newToken.name, token2.name, token1.name);
-                                strcpy(newStr, str); // Copy string
-                                operations[*opCount] = newStr; // Assign new memory location to array element and increment opCount
-                                (*opCount)++;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '&':
                                 sprintf(newToken.name, "%%%d", ++(*variableCount));
                                 newToken.value = val2 & val1;
                                 fprintf(file, "\t%s = and i32 %s, %s\n", newToken.name, token2.name, token1.name);
-                                sprintf(str, "\t%s = and i32 %s, %s\n", newToken.name, token2.name, token1.name);
-                                strcpy(newStr, str); // Copy string
-                                operations[*opCount] = newStr; // Assign new memory location to array element and increment opCount
-                                (*opCount)++;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '|':
                                 sprintf(newToken.name, "%%%d", ++(*variableCount));
                                 newToken.value = val2 | val1;
                                 fprintf(file, "\t%s = or i32 %s, %s\n", newToken.name, token2.name, token1.name);
-                                sprintf(str, "\t%s = or i32 %s, %s\n", newToken.name, token2.name, token1.name);
-                                strcpy(newStr, str); // Copy string
-                                operations[*opCount] = newStr; // Assign new memory location to array element and increment opCount
-                                (*opCount)++;
                                 pushPostfix(&stack, newToken);
                                 break;
                         }
