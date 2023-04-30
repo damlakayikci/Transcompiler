@@ -141,7 +141,7 @@ int main() {
                                     continue;
                                 } else {
                                     if (num_tokens== 3) {
-                                        fprintf(intermediate, "\tstore %lld, i32* %%%s\n", tokens[2].value, tokens[0].name);
+                                        fprintf(intermediate, "\tstore i32 %lld, i32* %%%s\n", tokens[2].value, tokens[0].name);
                                     } else{
                                         int var_index = returnIndex(variables, num_variables, variable.name);
                                         variables[var_index].value = result;
@@ -181,7 +181,8 @@ int main() {
                                 } else { // TODO buraya bak
                                     printf("%lld\n", result);
                                     // call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %8 )
-                                    fprintf(intermediate ,"\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d\n)", variableCount);
+                                    fprintf(intermediate ,"\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)\n", variableCount);
+                                    variableCount++; // TODO sorgulama cagatay boyle olmasi gerekiyomus
                                 }
                             }
                             int i = 0;
