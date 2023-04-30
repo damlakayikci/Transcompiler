@@ -18,6 +18,8 @@ int main() {
     char input[256];
     int bok = 0;
     int variableCount = 0;
+    char *operations[256] ;
+    int opCount = 0; // keep count of operations
 
     FILE *file;
     char filename[] = "file.ll";
@@ -104,15 +106,14 @@ int main() {
                                 printf("Error!\n");
                                 continue;
                             } else {
-                                char *operations[256] ;
-                                int opCount = 0;
                                 long long int result = evaluatePostfix(postfix, num_tokens - 2, variables,
                                                                        num_variables, &error, file, &variableCount, operations, &opCount);
 
+
+                                printf("Operation count in main: %d\n", opCount);
                                 // print elements of operations
                                 for (int i = 0; i < opCount; i++) {
                                     printf("Eq Operations %d\t\t%s\n", i, operations[i]);
-                                    i++;
                                 }
 
                                 // if there is an error in evaluating the postfix
@@ -149,16 +150,14 @@ int main() {
                                 printf("Error!\n");
                                 continue;
                             } else {
-                                char *operations[256] ;
-                                int opCount = 0; // keep count of operations
+
                                 long long int result = evaluatePostfix(postfix, num_tokens, variables, num_variables,
                                                                        &error, file, &variableCount, operations, &opCount);
 
-                                // print elements of operations
+                                printf("Operation count in main: %d\n", opCount);
                                 // print elements of operations
                                 for (int i = 0; i < opCount; i++) {
                                     printf("Noteq Operations %d\t\t%s\n", i, operations[i]);
-                                    i++;
                                 }
                                 // if there is an error in evaluating the postfix
                                 if (error) {
@@ -199,6 +198,8 @@ int main() {
         lineCount++;
         bok++;
     }
+
+
     // for all variables in variables array
     for (int i = 0; i < num_variables; i++) {
         fprintf(file, "\t%%%s = alloca i32\n", variables[i].name);
