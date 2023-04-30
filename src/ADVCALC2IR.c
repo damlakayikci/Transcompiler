@@ -104,8 +104,16 @@ int main() {
                                 printf("Error!\n");
                                 continue;
                             } else {
+                                char *operations[256] ;
+                                int opCount = 0;
                                 long long int result = evaluatePostfix(postfix, num_tokens - 2, variables,
-                                                                       num_variables, &error, file, &variableCount);
+                                                                       num_variables, &error, file, &variableCount, operations, &opCount);
+
+                                // print elements of operations
+                                for (int i = 0; i < opCount; i++) {
+                                    printf("Eq Operations %d\t\t%s\n", i, operations[i]);
+                                    i++;
+                                }
 
                                 // if there is an error in evaluating the postfix
                                 if (error) {
@@ -141,10 +149,17 @@ int main() {
                                 printf("Error!\n");
                                 continue;
                             } else {
-
+                                char *operations[256] ;
+                                int opCount = 0; // keep count of operations
                                 long long int result = evaluatePostfix(postfix, num_tokens, variables, num_variables,
-                                                                       &error, file, &variableCount);
+                                                                       &error, file, &variableCount, operations, &opCount);
 
+                                // print elements of operations
+                                // print elements of operations
+                                for (int i = 0; i < opCount; i++) {
+                                    printf("Noteq Operations %d\t\t%s\n", i, operations[i]);
+                                    i++;
+                                }
                                 // if there is an error in evaluating the postfix
                                 if (error) {
                                     printf("Error!\n");
