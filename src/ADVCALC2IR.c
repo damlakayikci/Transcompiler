@@ -158,7 +158,7 @@ int main() {
                                         int var_index = returnIndex(variables, num_variables, variable.name);
                                         variables[var_index].value = result;
                                         // TODO a=3 formatindaysa diye bi if eklenicek ustte ne var bilmiyorum
-                                        fprintf(intermediate, "\tstore i32 %%%d, i32* %%%s\n", num_variables, tokens[0].name);
+                                        fprintf(intermediate, "\tstore i32 %%%d, i32* %%%s\n", variableCount, tokens[0].name);
                                     }
 
                                 }
@@ -203,6 +203,8 @@ int main() {
                                     continue;
                                 } else {
                                     printf("%lld\n", result);
+                                    // call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %8 )
+                                    fprintf(intermediate ,"\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)", variableCount);
                                 }
                             }
                             int i = 0;
@@ -236,10 +238,13 @@ int main() {
         lineCount++;
         bok++;
     }
+    // close the intermediate file
+    fclose(intermediate);
 
     FILE *file;
     char filename[] = "file.ll";
     file = fopen(filename, "w");
+
     if (file == NULL) {
         printf("Error creating file.\n");
         return 1;
@@ -252,6 +257,25 @@ int main() {
     for (int i = 0; i < num_variables; i++) {
         fprintf(file, "\t%%%s = alloca i32\n", variables[i].name);
     }
+
+    // copy contents of intermediate file to file.ll
+    FILE *from;
+    char  c;
+    // Open one file for reading
+    from = fopen(nameFile, "r");
+    if (from == NULL){
+        printf("Cannot open file %s \n", filename);
+        exit(0);
+    }
+
+    // Read contents from file
+    c = fgetc(from);
+    while (c != EOF){
+        fputc(c, file);
+        c = fgetc(from);
+    }
+
+    fclose(from);
 
     fprintf(file, "\tret i32 0\n");
     fprintf(file, "%c", '}'); // print closing bracket
