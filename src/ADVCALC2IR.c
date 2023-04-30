@@ -10,14 +10,14 @@
 #define MAX_LENGTH 256
 #define MAX_VARIABLES 128
 
-char* read_last_line(const char* filename) {
-    FILE* fp = fopen(filename, "r");
+char *read_last_line(const char *filename) {
+    FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
         fprintf(stderr, "Error: failed to open file \"%s\".\n", filename);
         return NULL;
     }
 
-    char* line = NULL;
+    char *line = NULL;
     size_t len = 0;
     ssize_t read;
     int linecount = 0;
@@ -29,7 +29,7 @@ char* read_last_line(const char* filename) {
 
     // Seek to the beginning of the last line
     fseek(fp, 0, SEEK_SET);
-    for (int i = 0; i < linecount-1; i++) {
+    for (int i = 0; i < linecount - 1; i++) {
         getline(&line, &len, fp);
     }
 
@@ -50,7 +50,6 @@ int main() {
     int opCount = 0;
 
 
-
     FILE *intermediate;
     char nameFile[] = "intermediate.ll";
 
@@ -63,7 +62,7 @@ int main() {
 
 
 // TODO bu ne sikimse o olucak
-    while (bok < 7) {
+    while (bok < 3) {
         int num_tokens = 0; //  keep track of the number of tokens
         int index = 0;     //  keep track of the index of the tokens
         int output_count = 0;
@@ -129,7 +128,8 @@ int main() {
                             } else {
 
                                 long long int result = evaluatePostfix(postfix, num_tokens - 2, variables,
-                                                                       num_variables, &error, intermediate, &variableCount,
+                                                                       num_variables, &error, intermediate,
+                                                                       &variableCount,
                                                                        operations, &opCount);
 
 
@@ -138,13 +138,15 @@ int main() {
                                     printf("Error on line %d!\n", lineCount);
                                     continue;
                                 } else {
-                                    if (num_tokens== 3) {
-                                        fprintf(intermediate, "\tstore i32 %lld, i32* %%%s\n", tokens[2].value, tokens[0].name);
-                                    } else{
+                                    if (num_tokens == 3) {
+                                        fprintf(intermediate, "\tstore i32 %lld, i32* %%%s\n", tokens[2].value,
+                                                tokens[0].name);
+                                    } else {
                                         int var_index = returnIndex(variables, num_variables, variable.name);
                                         variables[var_index].value = result;
                                         // TODO a=3 formatindaysa diye bi if eklenicek ustte ne var bilmiyorum
-                                        fprintf(intermediate, "\tstore i32 %%%d, i32* %%%s\n", variableCount, tokens[0].name);
+                                        fprintf(intermediate, "\tstore i32 %%%d, i32* %%%s\n", variableCount,
+                                                tokens[0].name);
                                     }
 
                                 }
@@ -179,7 +181,9 @@ int main() {
                                 } else { // TODO buraya bak
                                     printf("%lld\n", result);
                                     // call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %8 )
-                                    fprintf(intermediate ,"\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)\n", variableCount);
+                                    fprintf(intermediate,
+                                            "\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)\n",
+                                            variableCount);
                                     variableCount++; // TODO sorgulama cagatay boyle olmasi gerekiyomus
                                 }
                             }
@@ -214,11 +218,12 @@ int main() {
         lineCount++;
         bok++;
     }
-    //if(error){
+    //if(error){}
 
-    }
-    // TODO      Buraya error check yapilcak error varsa dosyalari sil
-    // close the intermediate file
+
+
+// TODO      Buraya error check yapilcak error varsa dosyalari sil
+// close the intermediate file
     fclose(intermediate);
 
     FILE *file;
@@ -232,34 +237,42 @@ int main() {
 
 
     char beginning[] = "; ModuleID = 'advcalc2ir'\ndeclare i32 @printf(i8*, ...)\n\n@print.str = constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n";
-    fprintf(file, "%s", beginning);
-    // for all variables in variables array
-    for (int i = 0; i < num_variables; i++) {
-        fprintf(file, "\t%%%s = alloca i32\n", variables[i].name);
+    fprintf(file,
+            "%s", beginning);
+// for all variables in variables array
+    for (
+            int i = 0;
+            i < num_variables;
+            i++) {
+        fprintf(file,
+                "\t%%%s = alloca i32\n", variables[i].name);
     }
 
-    // copy contents of intermediate file to file.ll
+// copy contents of intermediate file to file.ll
     FILE *from;
-    char  c;
-    // Open one file for reading
+    char c;
+// Open one file for reading
     from = fopen(nameFile, "r");
-    if (from == NULL){
+    if (from == NULL) {
         printf("Cannot open file %s \n", filename);
         exit(0);
     }
 
-    // Read contents from file
+// Read contents from file
     c = fgetc(from);
-    while (c != EOF){
-        fputc(c, file); // write to file.ll
+    while (c != EOF) {
+        fputc(c, file
+        ); // write to file.ll
         c = fgetc(from);
     }
 
     fclose(from);
-    // TODO bu file silinsin
+// TODO bu file silinsin
 
-    fprintf(file, "\tret i32 0\n"); // write return value to file.ll
-    fprintf(file, "%c", '}'); // write closing bracket to file.ll
+    fprintf(file,
+            "\tret i32 0\n"); // write return value to file.ll
+    fprintf(file,
+            "%c", '}'); // write closing bracket to file.ll
     fclose(file); // close file.ll
     return 0;
 }
