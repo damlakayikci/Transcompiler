@@ -156,7 +156,7 @@ void modifyName(Token *token, int variableCount) {
     if (token->type == TOKEN_TYPE_IDENTIFIER) {
         char *new_name = malloc(sizeof(char) * 16); // allocate memory for the new name
         sprintf(new_name, "%%%d", variableCount); // format the new name with the given number
-        //  free(token->name); // free the old name
+      //  free(token->name); // free the old name
         token->name = new_name; // update token name to new string
 
     } else {
