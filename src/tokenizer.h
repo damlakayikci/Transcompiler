@@ -1,7 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "token.h"
 
 #define MAX_LENGTH 256
 

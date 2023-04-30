@@ -103,7 +103,6 @@ int main() {
 //                                printf("Postfix %d\t\ttype: %u\t\tvalue: %lld\t\tname: %s\n", i, postfix[i].type,
 //                                       postfix[i].value, postfix[i].name);
 //                            }
-<<<<<<< Updated upstream
                             // if there is error in converting to postfix
                             if (error) {
                                 printf("Error!\n");
@@ -120,9 +119,7 @@ int main() {
                                 }
 
                                 // if there is an error in evaluating the postfix
-=======
                                 // if there is error in converting to postfix
->>>>>>> Stashed changes
                                 if (error) {
                                     printf("Error!\n");
                                     continue;
