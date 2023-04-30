@@ -30,7 +30,7 @@ int main() {
     char beginning[] = "; ModuleID = 'advcalc2ir'\ndeclare i32 @printf(i8*, ...)\n\n@print.str = constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n";
     fprintf(file, "%s", beginning);
 
-    while (bok < 7) {
+    while (bok < 3) {
         int num_tokens = 0; //  keep track of the number of tokens
         int index = 0;     //  keep track of the index of the tokens
         int output_count = 0;
@@ -95,7 +95,10 @@ int main() {
 
                             // the expression after the equal sign will be our value, so we take formatted form second element
                             Token *postfix = infixToPostfix(&formatted[2], num_tokens - 2, &error);
-
+//                            for (int i = 0; i < num_tokens; i++) {
+//                                printf("Postfix %d\t\ttype: %u\t\tvalue: %lld\t\tname: %s\n", i, postfix[i].type,
+//                                       postfix[i].value, postfix[i].name);
+//                            }
                             // if there is error in converting to postfix
                             if (error) {
                                 printf("Error!\n");
