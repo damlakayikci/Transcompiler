@@ -37,7 +37,7 @@ int precedence(char *operator) {
         return 2;
     else if (strcmp(operator, "+") == 0 || strcmp(operator, "-") == 0)
         return 3;
-    else if (strcmp(operator, "*") == 0)
+    else if (strcmp(operator, "*") == 0 || strcmp(operator, "/") == 0 || strcmp(operator, "%") == 0)
         return 4;
     else if (strcmp(operator, "^") == 0 || strcmp(operator, "<") == 0 || strcmp(operator, ">") == 0 ||
              strcmp(operator, "$") == 0 || strcmp(operator, "#") == 0)
@@ -53,8 +53,8 @@ int precedence(char *operator) {
 int isOperator(char *ch) {
     return (strcmp(ch, "+") == 0 || strcmp(ch, "-") == 0 || strcmp(ch, "*") == 0 ||
             strcmp(ch, "|") == 0 || strcmp(ch, "<") == 0 || strcmp(ch, ">") == 0 || strcmp(ch, "^") == 0 ||
-            strcmp(ch, "$") == 0 || strcmp(ch, "#") == 0 || strcmp(ch, "!") == 0) || strcmp(ch, "&") == 0;
-
+            strcmp(ch, "$") == 0 || strcmp(ch, "#") == 0 || strcmp(ch, "!") == 0 || strcmp(ch, "&") == 0 ||
+            strcmp(ch, "/") == 0 || strcmp(ch, "%") == 0);
 }
 
 
@@ -284,6 +284,7 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                             case '#':
                                 sprintf(newToken.name, "%%%d", ++(*variableCount));
                                 newToken.value = rightRotate(val2, val1);
+                                fprintf(file, "\t%s = ashr i32 %s, %s\n", newToken.name, token2.name, token1.name);
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '<':
@@ -310,6 +311,20 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                                 fprintf(file, "\t%s = or i32 %s, %s\n", newToken.name, token2.name, token1.name);
                                 pushPostfix(&stack, newToken);
                                 break;
+                            case '/':
+                                sprintf(newToken.name, "%%%d", ++(*variableCount));
+                                newToken.value = val2 / val1;
+                                fprintf(file, "\t%s = sdiv i32 %s, %s\n", newToken.name, token2.name, token1.name);
+                                pushPostfix(&stack, newToken);
+                                break;
+                            case '%':
+                                sprintf(newToken.name, "%%%d", ++(*variableCount));
+                                newToken.value = val2 % val1;
+                                fprintf(file, "\t%s = srem i32 %s, %s\n", newToken.name, token2.name, token1.name);
+                                pushPostfix(&stack, newToken);
+                                break;
+
+
                         }
                     } else { // else something went wrong
                         *error = 1;
