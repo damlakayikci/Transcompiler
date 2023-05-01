@@ -72,12 +72,12 @@ int main(int argc, char *argv[]){
 
 
     int lineCount = 1;
-// TODO bu ne sikimse o olucak
     while (fgets(input, 256, input_file) != NULL) {
         int num_tokens = 0; //  keep track of the number of tokens
         int index = 0;     //  keep track of the index of the tokens
         int output_count = 0;
         int error = 0; // boolean for errors
+        char *newStr = malloc(sizeof(char) * 256); // allocate memory for the new name
         int equalFlag = 0;
 
 
@@ -103,6 +103,43 @@ int main(int argc, char *argv[]){
             if (tokens == NULL) {
                 printf("Error on line %d!\n", lineCount);
             } else if (num_tokens == 0) {
+                continue;
+            } else if (num_tokens == 1 && tokens[0].type == TOKEN_TYPE_NUMBER) {
+//                if (node -> left -> token -> type == TOKEN_NUMBER && node -> right == NULL) {
+//                    fprintf(fp2, "%%%d = alloca i32\n", reg_counter);
+//                    fprintf(fp2, "store i32 %s, i32* %%%d\n", node -> left -> token -> value, reg_counter);
+//                    reg_counter++;
+//                    fprintf(fp2, "%%%d = load i32, i32* %%%d\n", reg_counter, reg_counter - 1);
+//                    reg_counter++;
+//                    fprintf(fp2, "call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)\n", reg_counter - 1);
+//                    reg_counter++;
+//                    continue;
+//                }
+//                else if (node -> left -> token -> type == TOKEN_IDENTIFIER && node -> right == NULL) {
+//                    if (does_exist(node -> left -> token -> value)) {
+//                        fprintf(fp2, "%%%d = load i32, i32* %%%s\n", reg_counter, node -> left -> token -> value);
+//                        reg_counter++;
+//                        fprintf(fp2, "call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)\n", reg_counter - 1);
+//                        reg_counter++;
+
+                fprintf(intermediate, "\t%%%d = alloca i32\n", ++variableCount);
+                fprintf(intermediate, "\tstore i32 %lld, i32* %%%d\n", tokens[0].value, variableCount);
+                fprintf(intermediate, "\t%%%d = load i32, i32* %%%d\n", ++variableCount, variableCount - 1);
+                fprintf(intermediate,
+                        "\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)\n",
+                        variableCount);
+                variableCount++;
+                continue;
+            } else if (num_tokens == 1 && tokens[0].type == TOKEN_TYPE_IDENTIFIER) {
+                if (tokens[0].isDefined) {
+                    fprintf(intermediate, "\t%%%d = load i32, i32* %%%lld\n", ++variableCount, tokens[0].value);
+                    fprintf(intermediate,
+                            "\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)\n",
+                            variableCount - 1);
+                    variableCount++;
+                } else {
+                    printf("\tError on line %d!\n", lineCount);
+                }
                 continue;
             } else {
 
