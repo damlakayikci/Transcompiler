@@ -403,7 +403,6 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                 return 0;
             }
         }
-        free(newToken.name);
     }
     for(int j = 0;  j< counter - counter2; j++) {
         ++(*variableCount);
