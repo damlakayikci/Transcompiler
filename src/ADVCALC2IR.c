@@ -140,11 +140,14 @@ int main() {
                                     if (num_tokens == 3) {
                                         fprintf(intermediate, "\tstore i32 %lld, i32* %%%s\n", tokens[2].value,
                                                 tokens[0].name);
+                                        variables[returnIndex(variables, num_variables, tokens[0].name)].isDefined= 1;
                                     } else {
                                         int var_index = returnIndex(variables, num_variables, variable.name);
                                         variables[var_index].value = result;
                                         fprintf(intermediate, "\tstore i32 %%%d, i32* %%%s\n", variableCount,
                                                 tokens[0].name);
+                                        variables[returnIndex(variables, num_variables, tokens[0].name)].isDefined= 1;
+
                                     }
 
                                 }

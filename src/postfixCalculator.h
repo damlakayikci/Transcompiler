@@ -196,6 +196,10 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                         } else { // if variable is found in the variable list get the value from the variable list
                             token1 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)];
                             val1 = token1.value;
+                            if (!token1.isDefined){ // give error
+                                *error = 1;
+                                break;
+                            }
                             fprintf(file, "\t%%%d = load i32, i32* %%%s\n", (++*variableCount), token1.name);
                         }
                         modifyName(&token1, *variableCount);
@@ -224,6 +228,10 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                     } else {
                         token1 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)];
                         val1 = token1.value;
+                        if (!token1.isDefined){ // give error
+                            *error = 1;
+                            break;
+                        }
                         fprintf(file, "\t%%%d = load i32, i32* %%%s\n", (++*variableCount), token1.name);
                     }
                     modifyName(&token1, *variableCount);
@@ -234,6 +242,10 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                         } else {
                             token2 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)];
                             val2 = token2.value;
+                            if (!token1.isDefined){ // give error
+                                *error = 1;
+                                break;
+                            }
                             fprintf(file, "\t%%%d = load i32, i32* %%%s\n", (++*variableCount), token2.name);
                         }
 
