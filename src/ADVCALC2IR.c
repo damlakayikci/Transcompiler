@@ -129,6 +129,7 @@ int main(int argc, char *argv[]){
                         "\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)\n",
                         variableCount);
                 variableCount++;
+                lineCount++;
                 continue;
             } else if (num_tokens == 1 && tokens[0].type == TOKEN_TYPE_IDENTIFIER) {
                 if (tokens[0].isDefined) {
@@ -140,6 +141,7 @@ int main(int argc, char *argv[]){
                 } else {
                     printf("\tError on line %d!\n", lineCount);
                 }
+                lineCount++;
                 continue;
             } else {
 
