@@ -143,7 +143,7 @@ int main(int argc, char *argv[]){
                             variableCount);
                     variableCount++;
                 } else {
-                    printf("\tError on line %d!\n", lineCount);
+                    printf("Error on line %d!\n", lineCount);
                 }
                 lineCount++;
                 continue;
