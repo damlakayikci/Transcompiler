@@ -137,6 +137,7 @@ void pushPostfix(TokenStack *stack, Token element) {
     stack->items[stack->top].name = element.name;
     stack->items[stack->top].type = element.type;
     stack->items[stack->top].value = element.value;
+    stack->items[stack->top].isDefined = element.isDefined;
 }
 
 LLI leftRotate(LLI n, LLI d) {
@@ -242,7 +243,7 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                         } else {
                             token2 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)];
                             val2 = token2.value;
-                            if (!token1.isDefined){ // give error
+                            if (!token2.isDefined){ // give error
                                 *error = 1;
                                 break;
                             }

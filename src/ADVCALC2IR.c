@@ -48,6 +48,7 @@ int main() {
     int variableCount = 0;
     char *operations[256];
     int opCount = 0;
+    int generalError = 0;
 
 
     FILE *intermediate;
@@ -60,14 +61,13 @@ int main() {
     }
 
 
-
+    int lineCount = 1;
 // TODO bu ne sikimse o olucak
     while (bok < 3) {
         int num_tokens = 0; //  keep track of the number of tokens
         int index = 0;     //  keep track of the index of the tokens
         int output_count = 0;
         int error = 0; // boolean for errors
-        int lineCount = 1;
         int equalFlag = 0;
 
 
@@ -122,6 +122,7 @@ int main() {
 
                             // if there is error in converting to postfix
                             if (error) {
+                                generalError = 1;
                                 printf("Error on line %d!\n", lineCount);
                                 continue;
                             } else {
@@ -134,6 +135,7 @@ int main() {
 
                                 // if there is an error in evaluating the postfix
                                 if (error) {
+                                    generalError = 1;
                                     printf("Error on line %d!\n", lineCount);
                                     continue;
                                 } else {
@@ -167,6 +169,7 @@ int main() {
 
                             // if there is error in converting to postfix
                             if (error) {
+                                generalError = 1;
                                 printf("Error on line %d!\n", lineCount);
                                 continue;
                             } else {
@@ -177,6 +180,7 @@ int main() {
 
                                 // if there is an error in evaluating the postfix
                                 if (error) {
+                                    generalError = 1;
                                     printf("Error on line %d!\n", lineCount);
                                     continue;
                                 } else { // TODO buraya bak
@@ -219,61 +223,50 @@ int main() {
         lineCount++;
         bok++;
     }
-    //if(error){}
-
-
-
-// TODO      Buraya error check yapilcak error varsa dosyalari sil
-// close the intermediate file
-    fclose(intermediate);
-
-    FILE *file;
-    char filename[] = "file.ll";
-    file = fopen(filename, "w");
-
-    if (file == NULL) {
-        printf("Error creating file.\n");
+    if (generalError) {
+        //remove the intermediate file
+        remove("intermediate.ll");
         return 1;
-    }
+    } else {
 
+        fclose(intermediate);
 
-    char beginning[] = "; ModuleID = 'advcalc2ir'\ndeclare i32 @printf(i8*, ...)\n\n@print.str = constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n";
-    fprintf(file,
-            "%s", beginning);
+        FILE *file;
+        char filename[] = "file.ll";
+        file = fopen(filename, "w");
+
+        if (file == NULL) {
+            printf("Error creating file.\n");
+            return 1;
+        }
+
+        char beginning[] = "; ModuleID = 'advcalc2ir'\ndeclare i32 @printf(i8*, ...)\n\n@print.str = constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n";
+        fprintf(file,"%s", beginning);
 // for all variables in variables array
-    for (
-            int i = 0;
-            i < num_variables;
-            i++) {
-        fprintf(file,
-                "\t%%%s = alloca i32\n", variables[i].name);
-    }
-
+        for (int i = 0; i < num_variables; i++) {
+            fprintf(file, "\t%%%s = alloca i32\n", variables[i].name);
+        }
 // copy contents of intermediate file to file.ll
-    FILE *from;
-    char c;
+        FILE *from;
+        char c;
 // Open one file for reading
-    from = fopen(nameFile, "r");
-    if (from == NULL) {
-        printf("Cannot open file %s \n", filename);
-        exit(0);
-    }
+        from = fopen(nameFile, "r");
+        if (from == NULL) {
+            printf("Cannot open file %s \n", filename);
+            exit(0);
+        }
 
 // Read contents from file
-    c = fgetc(from);
-    while (c != EOF) {
-        fputc(c, file
-        ); // write to file.ll
         c = fgetc(from);
-    }
+        while (c != EOF) {fputc(c, file); // write to file.ll
+            c = fgetc(from);
+        }
 
-    fclose(from);
+        fclose(from);
 // TODO bu file silinsin
-
-    fprintf(file,
-            "\tret i32 0\n"); // write return value to file.ll
-    fprintf(file,
-            "%c", '}'); // write closing bracket to file.ll
-    fclose(file); // close file.ll
-    return 0;
+        fprintf(file, "\tret i32 0\n"); // write return value to file.ll
+        fprintf(file, "%c", '}'); // write closing bracket to file.ll
+        fclose(file); // close file.ll
+        return 0;
+    }
 }
