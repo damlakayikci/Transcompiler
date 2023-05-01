@@ -131,7 +131,8 @@ int main(int argc, char *argv[]){
                 variableCount++;
                 lineCount++;
                 continue;
-            } else if (num_tokens == 1 && tokens[0].type == TOKEN_TYPE_IDENTIFIER) {
+            }
+            else if (num_tokens == 1 && tokens[0].type == TOKEN_TYPE_IDENTIFIER) {
                 if (variables[returnIndex(variables, num_variables, tokens[0].name)].isDefined) {
                     fprintf(intermediate, "\t%%%d = load i32, i32* %%%s\n", ++variableCount, tokens[0].name);
                     fprintf(intermediate,
@@ -143,7 +144,8 @@ int main(int argc, char *argv[]){
                 }
                 lineCount++;
                 continue;
-            } else {
+            }
+            else {
 
                 Token *formatted = formatController(tokens, num_tokens, 0, &index, &output_count);
 

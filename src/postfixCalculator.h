@@ -211,16 +211,16 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                         }
                         modifyName(&token1, counter);
                         sprintf(newToken.name, "%%%d", ++counter);
-                        fprintf(file, "\t%s = xor i32 %s, %s\n", newToken.name, token1.name, "-1");
+                        fprintf(file, "\t%s = xor i32 %s, %s\n", newToken.name, "-1", token1.name);
                         newToken.value = ~val1;
                         pushPostfix(&stack, newToken);
-                        break;
+                        continue;
                     } else if (peek(&stack).type == TOKEN_TYPE_NUMBER) {
                         token1 = popPostfix(&stack);
                         val1 = token1.value;
                         modifyName(&token1, counter);
                         sprintf(newToken.name, "%%%d", ++counter);
-                        fprintf(file, "\t%s = xor i32 %s, %s\n", newToken.name, token1.name, "-1");
+                        fprintf(file, "\t%s = xor i32 %s, %s\n", newToken.name, "-1", token1.name);
                         newToken.value = ~val1;
                         pushPostfix(&stack, newToken);
                     } else {
