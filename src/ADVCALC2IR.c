@@ -234,7 +234,6 @@ int main(int argc, char *argv[]){
                                 lineCount++;
                                 continue;
                             } else if (!generalError) { // TODO buraya bak
-                                printf("%lld\n", result);
                                 // call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %8 )
                                 fprintf(intermediate,
                                         "\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)\n",

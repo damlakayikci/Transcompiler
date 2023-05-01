@@ -291,8 +291,8 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                             case '^':
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
-                                newToken.value = val2 ^ val1;
                                 fprintf(file, "\t%s = xor i32 %s, %s\n", newToken.name, token2name, token1name);
+                                newToken.value = val2 ^ val1;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '$':
@@ -340,43 +340,43 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                             case '<':
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
-                                newToken.value = val2 << val1;
                                 fprintf(file, "\t%s = shl i32 %s, %s\n", newToken.name, token2name, token1name);
+                                newToken.value = val2 << val1;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '>':
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
-                                newToken.value = val2 >> val1;
                                 fprintf(file, "\t%s = ashr i32 %s, %s\n", newToken.name, token2name, token1name);
+                                newToken.value = val2 >> val1;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '&':
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
-                                newToken.value = val2 & val1;
                                 fprintf(file, "\t%s = and i32 %s, %s\n", newToken.name, token2name, token1name);
+                                newToken.value = val2 & val1;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '|':
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
-                                newToken.value = val2 | val1;
                                 fprintf(file, "\t%s = or i32 %s, %s\n", newToken.name, token2name, token1name);
+                                newToken.value = val2 | val1;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '/':
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
-                                newToken.value = val2 / val1;
                                 fprintf(file, "\t%s = sdiv i32 %s, %s\n", newToken.name, token2name, token1name);
+                                newToken.value = val2 / val1;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '%':
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
-                                newToken.value = val2 % val1;
                                 fprintf(file, "\t%s = srem i32 %s, %s\n", newToken.name, token2name, token1name);
+                                newToken.value = val2 % val1;
                                 pushPostfix(&stack, newToken);
                                 break;
 
