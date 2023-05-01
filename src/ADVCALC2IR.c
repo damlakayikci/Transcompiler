@@ -93,6 +93,7 @@ int main(int argc, char *argv[]){
         }
 
         if (is_empty) {
+            lineCount++;
             continue;
         } else {
 
@@ -103,6 +104,7 @@ int main(int argc, char *argv[]){
             if (tokens == NULL) {
                 printf("Error on line %d!\n", lineCount);
             } else if (num_tokens == 0) {
+                lineCount++;
                 continue;
             } else if (num_tokens == 1 && tokens[0].type == TOKEN_TYPE_NUMBER) {
 //                if (node -> left -> token -> type == TOKEN_NUMBER && node -> right == NULL) {
@@ -153,6 +155,7 @@ int main(int argc, char *argv[]){
                 // if formatController returns null, there is an error
                 if (formatted == NULL) {
                     printf("Error on line %d!\n", lineCount);
+                    lineCount++;
                     continue;
                 } else {
                     // If the expression is an equation
@@ -171,6 +174,7 @@ int main(int argc, char *argv[]){
                         if (error) {
                             generalError = 1;
                             printf("Error on line %d!\n", lineCount);
+                            lineCount++;
                             continue;
                         } else {
 
@@ -182,6 +186,7 @@ int main(int argc, char *argv[]){
                             if (error) {
                                 generalError = 1;
                                 printf("Error on line %d!\n", lineCount);
+                                lineCount++;
                                 continue;
                             } else {
                                 if (num_tokens == 3) {
@@ -216,6 +221,7 @@ int main(int argc, char *argv[]){
                         if (error) {
                             generalError = 1;
                             printf("Error on line %d!\n", lineCount);
+                            lineCount++;
                             continue;
                         } else {
 
@@ -225,6 +231,7 @@ int main(int argc, char *argv[]){
                             if (error) {
                                 generalError = 1;
                                 printf("Error on line %d!\n", lineCount);
+                                lineCount++;
                                 continue;
                             } else if (!generalError) { // TODO buraya bak
                                 printf("%lld\n", result);
