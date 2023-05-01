@@ -124,7 +124,8 @@ int main(int argc, char *argv[]){
 
                 fprintf(intermediate, "\t%%%d = alloca i32\n", ++variableCount);
                 fprintf(intermediate, "\tstore i32 %lld, i32* %%%d\n", tokens[0].value, variableCount);
-                fprintf(intermediate, "\t%%%d = load i32, i32* %%%d\n", ++variableCount, variableCount - 1);
+                ++variableCount;
+                fprintf(intermediate, "\t%%%d = load i32, i32* %%%d\n", variableCount, variableCount - 1);
                 fprintf(intermediate,
                         "\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)\n",
                         variableCount);
