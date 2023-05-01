@@ -132,11 +132,11 @@ int main(int argc, char *argv[]){
                 lineCount++;
                 continue;
             } else if (num_tokens == 1 && tokens[0].type == TOKEN_TYPE_IDENTIFIER) {
-                if (tokens[0].isDefined) {
-                    fprintf(intermediate, "\t%%%d = load i32, i32* %%%lld\n", ++variableCount, tokens[0].value);
+                if (variables[returnIndex(variables, num_variables, tokens[0].name)].isDefined) {
+                    fprintf(intermediate, "\t%%%d = load i32, i32* %%%s\n", ++variableCount, tokens[0].name);
                     fprintf(intermediate,
                             "\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)\n",
-                            variableCount - 1);
+                            variableCount);
                     variableCount++;
                 } else {
                     printf("\tError on line %d!\n", lineCount);
