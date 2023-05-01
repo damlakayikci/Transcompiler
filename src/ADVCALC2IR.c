@@ -40,11 +40,21 @@ char *read_last_line(const char *filename) {
     return line;
 }
 
-int main() {
+int main(int argc, char *argv[]){
+    char *filename = argv[argc-1];
+    FILE *input_file = fopen(filename, "r");
+    if (input_file == NULL) {
+        fprintf(stderr, "Error: failed to open file \"%s\".\n", filename);
+        return 1;
+    }
+    //iterate filename to get the name of the file
+    char *name = strtok(filename, ".");
+    char *outputFileName = strcat(name, ".ll");
+
+
     int num_variables = 0;
     Token *variables = malloc(sizeof(Token) * MAX_VARIABLES);
     char input[256];
-    int bok = 0;
     int variableCount = 0;
     char *operations[256];
     int opCount = 0;
@@ -63,7 +73,7 @@ int main() {
 
     int lineCount = 1;
 // TODO bu ne sikimse o olucak
-    while (bok < 3) {
+    while (fgets(input, 256, input_file) != NULL) {
         int num_tokens = 0; //  keep track of the number of tokens
         int index = 0;     //  keep track of the index of the tokens
         int output_count = 0;
@@ -71,7 +81,6 @@ int main() {
         int equalFlag = 0;
 
 
-        fgets(input, 256, stdin); //  read the input
 
         //  if the input is blank
         int len = strlen(input);
@@ -97,120 +106,111 @@ int main() {
                 continue;
             } else {
 
-                // if the first token is a comment, skip the rest
-                if (strcmp(tokens[0].name, "Comment_line") == 0) {
+                Token *formatted = formatController(tokens, num_tokens, 0, &index, &output_count);
+
+                // if formatController returns null, there is an error
+                if (formatted == NULL) {
+                    printf("Error on line %d!\n", lineCount);
                     continue;
                 } else {
-                    Token *formatted = formatController(tokens, num_tokens, 0, &index, &output_count);
+                    // If the expression is an equation
+                    if (formatted[1].type == TOKEN_TYPE_EQUALS) {
+                        equalFlag = 1;
 
-                    // if formatController returns null, there is an error
-                    if (formatted == NULL) {
-                        printf("Error on line %d!\n", lineCount);
-                        continue;
-                    } else {
-                        // If the expression is an equation
-                        if (formatted[1].type == TOKEN_TYPE_EQUALS) {
-                            equalFlag = 1;
+                        // create a pointer to the first element of the array
+                        Token *ptr = formatted;
+                        // access the element at index 0
+                        Token variable = *(ptr);
 
-                            // create a pointer to the first element of the array
-                            Token *ptr = formatted;
-                            // access the element at index 0
-                            Token variable = *(ptr);
+                        // the expression after the equal sign will be our value, so we take formatted form second element
+                        Token *postfix = infixToPostfix(&formatted[2], num_tokens - 2, &error);
 
-                            // the expression after the equal sign will be our value, so we take formatted form second element
-                            Token *postfix = infixToPostfix(&formatted[2], num_tokens - 2, &error);
+                        // if there is error in converting to postfix
+                        if (error) {
+                            generalError = 1;
+                            printf("Error on line %d!\n", lineCount);
+                            continue;
+                        } else {
 
-                            // if there is error in converting to postfix
+                            long long int result = evaluatePostfix(postfix, num_tokens - 2, variables, num_variables,
+                                                                   &error, intermediate,&variableCount);
+
+
+                            // if there is an error in evaluating the postfix
                             if (error) {
                                 generalError = 1;
                                 printf("Error on line %d!\n", lineCount);
                                 continue;
                             } else {
-
-                                long long int result = evaluatePostfix(postfix, num_tokens - 2, variables,
-                                                                       num_variables, &error, intermediate,
-                                                                       &variableCount,
-                                                                       operations, &opCount);
-
-
-                                // if there is an error in evaluating the postfix
-                                if (error) {
-                                    generalError = 1;
-                                    printf("Error on line %d!\n", lineCount);
-                                    continue;
+                                if (num_tokens == 3) {
+                                    fprintf(intermediate, "\tstore i32 %lld, i32* %%%s\n", tokens[2].value,
+                                            tokens[0].name);
+                                    variables[returnIndex(variables, num_variables, tokens[0].name)].isDefined= 1;
                                 } else {
-                                    if (num_tokens == 3) {
-                                        fprintf(intermediate, "\tstore i32 %lld, i32* %%%s\n", tokens[2].value,
-                                                tokens[0].name);
-                                        variables[returnIndex(variables, num_variables, tokens[0].name)].isDefined= 1;
-                                    } else {
-                                        int var_index = returnIndex(variables, num_variables, variable.name);
-                                        variables[var_index].value = result;
-                                        fprintf(intermediate, "\tstore i32 %%%d, i32* %%%s\n", variableCount,
-                                                tokens[0].name);
-                                        variables[returnIndex(variables, num_variables, tokens[0].name)].isDefined= 1;
-
-                                    }
+                                    int var_index = returnIndex(variables, num_variables, variable.name);
+                                    variables[var_index].value = result;
+                                    fprintf(intermediate, "\tstore i32 %%%d, i32* %%%s\n", variableCount,
+                                            tokens[0].name);
+                                    variables[returnIndex(variables, num_variables, tokens[0].name)].isDefined= 1;
 
                                 }
+
                             }
-                            int i = 0;
-                            if (postfix != NULL)
-                                while (postfix[i].name != NULL) {
-                                    postfix[i].name = NULL;
-                                    postfix[i].value = 0;
-                                    postfix[i].type = 0;
-                                }
                         }
-                            // if there is no equal sign in the input
-                        else {
-                            equalFlag = 0;
-                            Token *postfix = infixToPostfix(formatted, num_tokens, &error);
+                        int i = 0;
+                        if (postfix != NULL)
+                            while (postfix[i].name != NULL) {
+                                postfix[i].name = NULL;
+                                postfix[i].value = 0;
+                                postfix[i].type = 0;
+                            }
+                    }
+                        // if there is no equal sign in the input
+                    else {
+                        equalFlag = 0;
+                        Token *postfix = infixToPostfix(formatted, num_tokens, &error);
 
-                            // if there is error in converting to postfix
+                        // if there is error in converting to postfix
+                        if (error) {
+                            generalError = 1;
+                            printf("Error on line %d!\n", lineCount);
+                            continue;
+                        } else {
+
+                            long long int result = evaluatePostfix(postfix, num_tokens, variables, num_variables,
+                                                                   &error, intermediate, &variableCount);
+                            // if there is an error in evaluating the postfix
                             if (error) {
                                 generalError = 1;
                                 printf("Error on line %d!\n", lineCount);
                                 continue;
-                            } else {
-
-                                long long int result = evaluatePostfix(postfix, num_tokens, variables, num_variables,
-                                                                       &error, intermediate, &variableCount, operations,
-                                                                       &opCount);
-
-                                // if there is an error in evaluating the postfix
-                                if (error) {
-                                    generalError = 1;
-                                    printf("Error on line %d!\n", lineCount);
-                                    continue;
-                                } else { // TODO buraya bak
-                                    printf("%lld\n", result);
-                                    // call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %8 )
-                                    fprintf(intermediate,
-                                            "\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)\n",
-                                            variableCount);
-                                    variableCount++; // TODO sorgulama cagatay boyle olmasi gerekiyomus
-                                }
+                            } else if (!generalError) { // TODO buraya bak
+                                printf("%lld\n", result);
+                                // call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %8 )
+                                fprintf(intermediate,
+                                        "\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)\n",
+                                        variableCount);
+                                variableCount++; // TODO sorgulama cagatay boyle olmasi gerekiyomus
                             }
-                            int i = 0;
-                            if (postfix != NULL)
-                                while (postfix[i].type != 0) {
-                                    postfix[i].name = NULL;
-                                    postfix[i].type = 0;
-                                    postfix[i].value = 0;
-                                    ++i;
-                                }
                         }
+                        int i = 0;
+                        if (postfix != NULL)
+                            while (postfix[i].type != 0) {
+                                postfix[i].name = NULL;
+                                postfix[i].type = 0;
+                                postfix[i].value = 0;
+                                ++i;
+                            }
                     }
-                    int i = 0;
-                    if (formatted != NULL)
-                        while (formatted[index].type != 0) {
-                            formatted[i].name = NULL;
-                            formatted[i].type = 0;
-                            formatted[i].value = 0;
-                            ++i;
-                        }
                 }
+                int i = 0;
+                if (formatted != NULL)
+                    while (formatted[index].type != 0) {
+                        formatted[i].name = NULL;
+                        formatted[i].type = 0;
+                        formatted[i].value = 0;
+                        ++i;
+                    }
             }
             int i = 0;
             if (tokens != NULL)
@@ -221,7 +221,6 @@ int main() {
                 }
         }
         lineCount++;
-        bok++;
     }
     if (generalError) {
         //remove the intermediate file
@@ -232,8 +231,7 @@ int main() {
         fclose(intermediate);
 
         FILE *file;
-        char filename[] = "file.ll";
-        file = fopen(filename, "w");
+        file = fopen(outputFileName, "w");
 
         if (file == NULL) {
             printf("Error creating file.\n");
@@ -258,7 +256,8 @@ int main() {
 
 // Read contents from file
         c = fgetc(from);
-        while (c != EOF) {fputc(c, file); // write to file.ll
+        while (c != EOF) {
+            fputc(c, file); // write to file.ll
             c = fgetc(from);
         }
 

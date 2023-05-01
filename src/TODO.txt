@@ -1,13 +1,13 @@
 Yapildiysa basina arti koy
 
 
-    Comment isi kontrol edilcek
-    Sonra if error file sil eklenecek
-    Postfix calculator 'char* operations[], int* opCount' parametreleri silinebilir error cikartmiypo ama gereksiz
-    Inputu terminalden almayi inputu filedan okuma olarak degistir (while bok degisicek)
+bu da ok gibi   Comment isi kontrol edilcek
+  +             Sonra if error file sil eklenecek
+  +             Postfix calculator 'char* operations[], int* opCount' parametreleri silinebilir error cikartmiypo ama gereksiz
+  +             Inputu terminalden almayi inputu filedan okuma olarak degistir (while bok degisicek)
 
-    Yes, if the input file name is 'emre.adv', the output file name should be 'emre.ll'. The extension should be replaced while keeping the rest of the file name unchanged.
-    thanks!
+  +             Yes, if the input file name is 'emre.adv', the output file name should be 'emre.ll'. The extension should be replaced while keeping the rest of the file name unchanged.
+                thanks!
 
 
 
