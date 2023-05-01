@@ -1,0 +1,31 @@
+Yapildiysa basina arti koy
+
+
+    Comment isi kontrol edilcek
+    Sonra if error file sil eklenecek
+    Postfix calculator 'char* operations[], int* opCount' parametreleri silinebilir error cikartmiypo ama gereksiz
+    Inputu terminalden almayi inputu filedan okuma olarak degistir (while bok degisicek)
+
+
+
+
+
+
+
+    Sanirim su kisimlar tumden silincek asagi yaziyorum kopyalayip bulursun
+    ADVCALC2IR:
+
+        int var_index = returnIndex(variables, num_variables, variable.name);
+                                                variables[var_index].value = result;
+
+        printf("%lld\n", result);
+
+    POSTFIX CALC:
+
+        char str[256];
+                                char *newStr = malloc(strlen(str) + 1); // Allocate memory
+
+        sprintf(str, "\t%s = add i32 %s, %s\n", newToken.name, token2.name, token1.name);
+                                        strcpy(newStr, str); // Copy string
+                                        operations[*opCount] = newStr; // Assign new memory location to array element and increment opCount
+                                        (*opCount)++;

@@ -70,8 +70,7 @@ int main() {
         int lineCount = 1;
         int equalFlag = 0;
 
-// TODO bu kalkicak sanirim
-        printf(">");
+
         fgets(input, 256, stdin); //  read the input
 
         //  if the input is blank
@@ -144,7 +143,6 @@ int main() {
                                     } else {
                                         int var_index = returnIndex(variables, num_variables, variable.name);
                                         variables[var_index].value = result;
-                                        // TODO a=3 formatindaysa diye bi if eklenicek ustte ne var bilmiyorum
                                         fprintf(intermediate, "\tstore i32 %%%d, i32* %%%s\n", variableCount,
                                                 tokens[0].name);
                                     }
