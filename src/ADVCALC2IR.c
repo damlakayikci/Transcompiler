@@ -191,24 +191,30 @@ int main(int argc, char *argv[]){
                                 lineCount++;
                                 continue;
                             } else {
-                                if (num_tokens == 3) {
+                                if (num_tokens == 3) { // if the expression isin form of a = b
                                     if (returnIndex(variables, num_variables, tokens[2].name) == -1){
+                                        // write to intermediate file
                                         fprintf(intermediate, "\tstore i32 %lld, i32* %%%s\n", tokens[2].value,
                                                 tokens[0].name);
+                                        // set the variable to defined
                                         variables[returnIndex(variables, num_variables, tokens[0].name)].isDefined= 1;
                                         variables[returnIndex(variables, num_variables, tokens[0].name)].value = tokens[2].value;
                                     } else {
                                         fprintf(intermediate, "\tstore i32 %lld, i32* %%%s\n",
                                                 variables[returnIndex(variables, num_variables, tokens[2].name)].value,
                                                 tokens[0].name);
+                                        // set the variable to defined
                                         variables[returnIndex(variables, num_variables, tokens[0].name)].isDefined = 1;
                                         variables[returnIndex(variables, num_variables, tokens[0].name)].value = variables[returnIndex(variables, num_variables, tokens[2].name)].value;
                                     }
                                 } else {
                                     int var_index = returnIndex(variables, num_variables, variable.name);
+                                    // update the value of the variable
                                     variables[var_index].value = result;
+                                    // write to intermediate file
                                     fprintf(intermediate, "\tstore i32 %%%d, i32* %%%s\n", variableCount,
                                             tokens[0].name);
+                                    // set the variable to defined
                                     variables[returnIndex(variables, num_variables, tokens[0].name)].isDefined= 1;
 
                                 }
@@ -244,12 +250,12 @@ int main(int argc, char *argv[]){
                                 printf("Error on line %d!\n", lineCount);
                                 lineCount++;
                                 continue;
-                            } else if (!generalError) { // TODO buraya bak
-                                // call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %8 )
+                            } else if (!generalError) {
+                                // write the print statement to intermediate file
                                 fprintf(intermediate,
                                         "\tcall i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @print.str, i32 0, i32 0), i32 %%%d)\n",
                                         variableCount);
-                                variableCount++; // TODO sorgulama cagatay boyle olmasi gerekiyomus
+                                variableCount++;
                             }
                         }
                         int i = 0;
@@ -281,15 +287,16 @@ int main(int argc, char *argv[]){
         }
         lineCount++;
     }
+    // if there is any error
     if (generalError) {
         // remove files
         fclose(intermediate);
         remove("intermediate.ll");
         return 1;
     }else{
-
+          // close intermediate file
         fclose(intermediate);
-
+          // create the final file
         FILE *file;
         file = fopen(outputFileName, "w");
 
@@ -297,7 +304,7 @@ int main(int argc, char *argv[]){
             printf("Error creating file.\n");
             return 1;
         }
-
+          // write the beginning of the file
         char beginning[] = "; ModuleID = 'advcalc2ir'\ndeclare i32 @printf(i8*, ...)\n\n@print.str = constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n";
         fprintf(file,"%s", beginning);
 // for all variables in variables array
@@ -322,7 +329,6 @@ int main(int argc, char *argv[]){
         }
         fclose(from);
 
-// TODO bu file silinsin
         fprintf(file, "\tret i32 0\n"); // write return value to file.ll
         fprintf(file, "%c", '}'); // write closing bracket to file.ll
         fclose(file); // close file.ll

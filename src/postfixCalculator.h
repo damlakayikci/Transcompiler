@@ -209,16 +209,22 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                             }
                             fprintf(file, "\t%%%d = load i32, i32* %%%s\n", ++counter, token1.name);
                         }
+                        // modify the name of the token
                         modifyName(&token1, counter);
+                        // modify the name of the new token
                         sprintf(newToken.name, "%%%d", ++counter);
+                        // write the instruction to the file
                         fprintf(file, "\t%s = xor i32 %s, %s\n", newToken.name, "-1", token1.name);
                         newToken.value = ~val1;
+                        // push the new token to the stack
                         pushPostfix(&stack, newToken);
                         continue;
                     } else if (peek(&stack).type == TOKEN_TYPE_NUMBER) {
                         token1 = popPostfix(&stack);
                         val1 = token1.value;
+                        // modify the name of the token
                         modifyName(&token1, counter);
+                        // modify the name of the new token
                         sprintf(newToken.name, "%%%d", ++counter);
                         fprintf(file, "\t%s = xor i32 %s, %s\n", newToken.name, "-1", token1.name);
                         newToken.value = ~val1;
@@ -232,32 +238,36 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                     if (returnIndex(variables, num_variables, peek(&stack).name) == -1) {
                         token1 = popPostfix(&stack);
                         val1 = token1.value;
-                    } else {
+                    } else { // if it is a variable
                         token1 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)];
                         val1 = token1.value;
                         if (!token1.isDefined){ // give error
                             *error = 1;
                             break;
                         }
+                        // write the load operation to the file
                         fprintf(file, "\t%%%d = load i32, i32* %%%s\n", ++counter, token1.name);
                     }
+                    // modify the name of the token
                     modifyName(&token1, counter);
                     if (peek(&stack).type == TOKEN_TYPE_IDENTIFIER || peek(&stack).type == TOKEN_TYPE_NUMBER) {
-                        if (returnIndex(variables, num_variables, peek(&stack).name) == -1) {
+                        if (returnIndex(variables, num_variables, peek(&stack).name) == -1) { // if it is a number
                             token2 = popPostfix(&stack);
                             val2 = token2.value;
-                        } else {
+                        } else { // if it is a variable
                             token2 = variables[returnIndex(variables, num_variables, popPostfix(&stack).name)];
                             val2 = token2.value;
                             if (!token2.isDefined){ // give error
                                 *error = 1;
                                 break;
                             }
+                            // write the load operation to the file
                             fprintf(file, "\t%%%d = load i32, i32* %%%s\n", ++counter, token2.name);
                         }
-
+                        // modify the name of the token
                         modifyName(&token2, counter);
 
+                        // keep the names of the tokens
                         char token1name[256];
                         strcpy(token1name, token1.name);
                         char token2name[256];
@@ -266,37 +276,44 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                         // evaluate the expression
                         switch (postfix[i].name[0]) {
                             case '+':
+                                // modify the name of the new token
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
-                                //sprintf(newToken.name, "%%%d", ++(counter));
+                                // write the instruction to the file
                                 fprintf(file, "\t%s = add i32 %s, %s\n", newToken.name, token2name, token1name);
-                                //printf("\t%s = add i32 %s, %s\n", newToken.name, name1, name2);
                                 newToken.value = val2 + val1;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '-':
+                                // modify the name of the new token
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
+                                // write the instruction to the file
                                 fprintf(file, "\t%s = sub i32 %s, %s\n", newToken.name, token2name, token1name);
                                 newToken.value = val2 - val1;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '*':
+                                // modify the name of the new token
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
+// write the instruction to the file
                                 fprintf(file, "\t%s = mul i32 %s, %s\n", newToken.name, token2name, token1name);
                                 newToken.value = val2 * val1;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '^':
+                                // modify the name of the new token
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
+                                // write the instruction to the file
                                 fprintf(file, "\t%s = xor i32 %s, %s\n", newToken.name, token2name, token1name);
                                 newToken.value = val2 ^ val1;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '$':
                                 newToken.value = leftRotate(val2, val1);
+                                // modify the name of the new token and write all the instructions to the file
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
                                 fprintf(file, "\t%s = shl i32 %s, %s\n", newToken.name, token2name, token1name);
@@ -312,10 +329,10 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
                                 fprintf(file, "\t%s = or i32 %%%d, %%%d\n", newToken.name, (counter-3), (counter) - 1);
-                                //return (n << d) | (n >> (INT_BITS - d));
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '#':
+                                // modify the name of the new token and write all the instructions to the file
                                 newToken.value = rightRotate(val2, val1);
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
@@ -336,15 +353,19 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '<':
+                                // modify the name of the new token
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
+                                // write the instruction to the file
                                 fprintf(file, "\t%s = shl i32 %s, %s\n", newToken.name, token2name, token1name);
                                 newToken.value = val2 << val1;
                                 pushPostfix(&stack, newToken);
                                 break;
                             case '>':
+                                // modify the name of the new token
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
+                                // write the instruction to the file
                                 fprintf(file, "\t%s = ashr i32 %s, %s\n", newToken.name, token2name, token1name);
                                 newToken.value = val2 >> val1;
                                 pushPostfix(&stack, newToken);
@@ -402,6 +423,7 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
             }
         }
     }
+    // update the value of the variableCount
     for(int j = 0;  j< counter - counter2; j++) {
         ++(*variableCount);
     }
