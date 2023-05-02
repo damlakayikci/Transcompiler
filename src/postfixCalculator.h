@@ -188,11 +188,11 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
     int i;
     // Scan all characters one by one
     for (i = 0; i < postfixSize; ++i) {
-        Token newToken;
-        newToken.type = TOKEN_TYPE_IDENTIFIER;
-        newToken.name = malloc(250 * sizeof(char));
-        newToken.value = 0;
         if (postfix[i].name != NULL) {
+            Token newToken;
+            newToken.type = TOKEN_TYPE_IDENTIFIER;
+            newToken.name = malloc(250 * sizeof(char));
+            newToken.value = 0;
             if (isOperator(postfix[i].name)) {
                 // check not operator first
                 if (strcmp(postfix[i].name, "!") == 0) {
@@ -312,7 +312,6 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
                                 fprintf(file, "\t%s = or i32 %%%d, %%%d\n", newToken.name, (counter-3), (counter) - 1);
-                                newToken.name[0] = '\0';
                                 //return (n << d) | (n >> (INT_BITS - d));
                                 pushPostfix(&stack, newToken);
                                 break;
@@ -333,7 +332,6 @@ LLI evaluatePostfix(Token *postfix, int postfixSize, Token *variables, int num_v
                                 sprintf(variableString, "%%%d", ++counter);
                                 strcat(newToken.name, variableString);
                                 fprintf(file, "\t%s = or i32 %%%d, %%%d\n", newToken.name, (counter-3), (counter) - 1);
-                                newToken.name[0] = '\0';
                                 //return (n >> d) | (n << (INT_BITS - d)); (val2 >> val1%32) | (val2 << (32-val1)%32)
                                 pushPostfix(&stack, newToken);
                                 break;

@@ -102,6 +102,7 @@ int main(int argc, char *argv[]){
 
             // if function returns null, there is an error
             if (tokens == NULL) {
+                generalError = 1;
                 printf("Error on line %d!\n", lineCount);
             } else if (num_tokens == 0) {
                 lineCount++;
@@ -143,6 +144,7 @@ int main(int argc, char *argv[]){
                             variableCount);
                     variableCount++;
                 } else {
+                    generalError = 1;
                     printf("Error on line %d!\n", lineCount);
                 }
                 lineCount++;
@@ -154,6 +156,7 @@ int main(int argc, char *argv[]){
 
                 // if formatController returns null, there is an error
                 if (formatted == NULL) {
+                    generalError = 1;
                     printf("Error on line %d!\n", lineCount);
                     lineCount++;
                     continue;
@@ -177,7 +180,6 @@ int main(int argc, char *argv[]){
                             lineCount++;
                             continue;
                         } else {
-
                             long long int result = evaluatePostfix(postfix, num_tokens - 2, variables, num_variables,
                                                                    &error, intermediate,&variableCount);
 
@@ -190,9 +192,18 @@ int main(int argc, char *argv[]){
                                 continue;
                             } else {
                                 if (num_tokens == 3) {
-                                    fprintf(intermediate, "\tstore i32 %lld, i32* %%%s\n", tokens[2].value,
-                                            tokens[0].name);
-                                    variables[returnIndex(variables, num_variables, tokens[0].name)].isDefined= 1;
+                                    if (returnIndex(variables, num_variables, tokens[2].name) == -1){
+                                        fprintf(intermediate, "\tstore i32 %lld, i32* %%%s\n", tokens[2].value,
+                                                tokens[0].name);
+                                        variables[returnIndex(variables, num_variables, tokens[0].name)].isDefined= 1;
+                                        variables[returnIndex(variables, num_variables, tokens[0].name)].value = tokens[2].value;
+                                    } else {
+                                        fprintf(intermediate, "\tstore i32 %lld, i32* %%%s\n",
+                                                variables[returnIndex(variables, num_variables, tokens[2].name)].value,
+                                                tokens[0].name);
+                                        variables[returnIndex(variables, num_variables, tokens[0].name)].isDefined = 1;
+                                        variables[returnIndex(variables, num_variables, tokens[0].name)].value = variables[returnIndex(variables, num_variables, tokens[2].name)].value;
+                                    }
                                 } else {
                                     int var_index = returnIndex(variables, num_variables, variable.name);
                                     variables[var_index].value = result;
@@ -271,10 +282,11 @@ int main(int argc, char *argv[]){
         lineCount++;
     }
     if (generalError) {
-        //remove the intermediate file
+        // remove files
+        fclose(intermediate);
         remove("intermediate.ll");
         return 1;
-    } else {
+    }else{
 
         fclose(intermediate);
 
@@ -308,8 +320,8 @@ int main(int argc, char *argv[]){
             fputc(c, file); // write to file.ll
             c = fgetc(from);
         }
-
         fclose(from);
+
 // TODO bu file silinsin
         fprintf(file, "\tret i32 0\n"); // write return value to file.ll
         fprintf(file, "%c", '}'); // write closing bracket to file.ll
